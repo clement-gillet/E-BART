@@ -1,2 +1,4 @@
 # E-BART
-This repo contains all the code related to my master thesis' research. The research question is the following: "Ca we improve performance (quality and controllability of summaries) of transformer-based summarizers by leveraging Event Relations in the input document?"
+This repo contains all the code related to my master thesis' research. The research question is the following: 
+
+"Can we improve performance of transformer-based summarizers, i.e. quality and controllability of summaries, by leveraging Event Relations in the input document?"
