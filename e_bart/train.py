@@ -4,11 +4,10 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import torch
-import transformers
 
 import wandb
 from datasets import load_dataset
-from transformers import HfArgumentParser, set_seed, AutoConfig
+from transformers import HfArgumentParser, set_seed, AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM
 
 
 @dataclass
@@ -59,25 +58,16 @@ def main():
     )
 
     # Load pretrained model and tokenizer
-    config = AutoConfig.from_pretrained(
-        args.config_name,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        use_fast=model_args.use_fast_tokenizer,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
+    config = AutoConfig.from_pretrained("./config.json")
+
+    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
+
     model = AutoModelForSeq2SeqLM.from_pretrained(
-        model_args.model_name_or_path,
+        args.model_name_or_path,
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
         config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
+        cache_dir=args.cache_dir,
+        revision=args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
