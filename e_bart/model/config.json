@@ -4,7 +4,7 @@
   "add_bias_logits": false,
   "add_final_layer_norm": false,
   "architectures": [
-    "BartModel"
+    "EBartModel"
   ],
   "attention_dropout": 0.1,
   "bos_token_id": 0,
