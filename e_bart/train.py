@@ -31,10 +31,6 @@ class CustomArguments:
         metadata={"help": "Provide a csv or json file for the test set"}
     )
 
-    output_dir: str = field(
-        metadata={"help": "Provide a directory to store the training checkpoints"}
-    )
-
     checkpoint_file: str = field(
         default=None, metadata={"help": "If the training shall be resumed from a checkpoint file, the user inputs a .pt or .bin file"},
     )
@@ -51,10 +47,12 @@ class CustomArguments:
         default=None, metadata={"help": "Provide a csv or json file for the training set"}
     )
 
+    preprocessing_num_workers: int = field(
+        default=None, metadata={"help": "The number of processes to use for the preprocessing."}
+    )
+
 
 def main():
-    print("In the making...")
-
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
 
@@ -62,8 +60,8 @@ def main():
     # Detecting last checkpoint.
 
     last_checkpoint = None
-    if os.path.isdir(args.output_dir):
-        last_checkpoint = get_last_checkpoint(args.output_dir)
+    if os.path.isdir(training_args.output_dir):
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
 
     # Set seed for reproducible behavior (set the seed in random, numpy and torch)
     set_seed(10)
@@ -93,13 +91,7 @@ def main():
         config=config,
     )
 
-    print("Tout va jusqu'ici")
-
     embedding_size = model.get_input_embeddings().weight.shape[0]
-
-    print(embedding_size)
-    print(len(tokenizer))
-    print(model.config.decoder_start_token_id)
 
     text_column = "document"
     summary_column = "summary"
@@ -159,7 +151,6 @@ def main():
             batched=True,
             num_proc=args.preprocessing_num_workers,
             remove_columns=train_dataset.column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
             desc="Running tokenizer on train dataset",
         )
 

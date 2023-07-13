@@ -1169,7 +1169,7 @@ class BartDecoder(BartPretrainedModel):
     "The bare BART Model outputting raw hidden-states without any specific head on top.",
     BART_START_DOCSTRING,
 )
-class EBartModel(BartPretrainedModel):
+class BartModel(BartPretrainedModel):
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
     def __init__(self, config: BartConfig):
