@@ -42,7 +42,8 @@ from transformers.utils import (
     logging,
     replace_return_docstrings,
 )
-from model.configuration_bart import BartConfig
+
+from .configuration_bart import BartConfig
 
 logger = logging.get_logger(__name__)
 
@@ -1176,7 +1177,6 @@ class EBartModel(BartPretrainedModel):
 
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
         self.shared = nn.Embedding(vocab_size, config.d_model, padding_idx)
-        print("On est confiant !")
         self.encoder = BartEncoder(config, self.shared)
         self.decoder = BartDecoder(config, self.shared)
 

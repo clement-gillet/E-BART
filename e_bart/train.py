@@ -80,13 +80,16 @@ def main():
     )
 
     # Load configuration (sets architecture to follow, i.e. e_bart)
-    my_config = AutoConfig.from_pretrained("./model/config.json")
+    my_config = AutoConfig.from_pretrained("model/config.json")
+    print(my_config)
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
+    print(tokenizer)
 
     # Load pretrained weights
     model = EBartModel(my_config)
+    print(model)
 
     text_column = "document"
     summary_column = "summary"
