@@ -23,8 +23,8 @@ import torch.utils.checkpoint
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
-from ...activations import ACT2FN
-from ...modeling_outputs import (
+from transformers.activations import ACT2FN
+from transformers.modeling_outputs import (
     BaseModelOutput,
     BaseModelOutputWithPastAndCrossAttentions,
     CausalLMOutputWithCrossAttentions,
@@ -33,8 +33,8 @@ from ...modeling_outputs import (
     Seq2SeqQuestionAnsweringModelOutput,
     Seq2SeqSequenceClassifierOutput,
 )
-from ...modeling_utils import PreTrainedModel
-from ...utils import (
+from transformers.modeling_utils import PreTrainedModel
+from transformers.utils import (
     add_code_sample_docstrings,
     add_end_docstrings,
     add_start_docstrings,
@@ -42,8 +42,7 @@ from ...utils import (
     logging,
     replace_return_docstrings,
 )
-from .configuration_bart import BartConfig
-
+from model.configuration_bart import BartConfig
 
 logger = logging.get_logger(__name__)
 
@@ -1169,7 +1168,7 @@ class BartDecoder(BartPretrainedModel):
     "The bare BART Model outputting raw hidden-states without any specific head on top.",
     BART_START_DOCSTRING,
 )
-class BartModel(BartPretrainedModel):
+class EBartModel(BartPretrainedModel):
     _tied_weights_keys = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
     def __init__(self, config: BartConfig):
@@ -1177,7 +1176,7 @@ class BartModel(BartPretrainedModel):
 
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
         self.shared = nn.Embedding(vocab_size, config.d_model, padding_idx)
-
+        print("On est confiant !")
         self.encoder = BartEncoder(config, self.shared)
         self.decoder = BartDecoder(config, self.shared)
 

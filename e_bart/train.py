@@ -7,12 +7,13 @@ from transformers import (
     set_seed,
     AutoConfig,
     AutoTokenizer,
-    AutoModelForSeq2SeqLM,
     DataCollatorForSeq2Seq,
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
 )
 from transformers.trainer_utils import get_last_checkpoint
+
+from model.modeling_e_bart import EBartModel
 
 
 @dataclass
@@ -68,10 +69,9 @@ def main():
 
     # Get the dataset
     data_files = {"train": args.train_file}
-    extension = args.train_file.split(".")[-1]
     data_files["validation"] = args.val_file
-    extension = args.val_file.split(".")[-1]
     data_files["test"] = args.test_file
+
     extension = args.test_file.split(".")[-1]
 
     raw_datasets = load_dataset(
@@ -80,18 +80,13 @@ def main():
     )
 
     # Load configuration (sets architecture to follow, i.e. e_bart)
-    config = AutoConfig.from_pretrained("./model/config.json")
+    my_config = AutoConfig.from_pretrained("./model/config.json")
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    model = AutoModelForSeq2SeqLM.from_pretrained(
-        "facebook/bart-large",
-        config=config,
-    )
-
-    embedding_size = model.get_input_embeddings().weight.shape[0]
+    model = EBartModel(my_config)
 
     text_column = "document"
     summary_column = "summary"
