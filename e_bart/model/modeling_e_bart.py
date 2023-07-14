@@ -293,7 +293,7 @@ class BartAttention(nn.Module):
         return attn_output, attn_weights_reshaped, past_key_value
 
 
-class BartEncoderLayer(nn.Module):
+class EBartEncoderLayer(nn.Module):
     def __init__(self, config: BartConfig):
         super().__init__()
         self.embed_dim = config.d_model
@@ -361,7 +361,7 @@ class BartEncoderLayer(nn.Module):
         return outputs
 
 
-class BartDecoderLayer(nn.Module):
+class EBartDecoderLayer(nn.Module):
     def __init__(self, config: BartConfig):
         super().__init__()
         self.embed_dim = config.d_model
@@ -700,7 +700,7 @@ BART_INPUTS_DOCSTRING = r"""
 """
 
 
-class BartEncoder(BartPretrainedModel):
+class EBartEncoder(BartPretrainedModel):
     """
     Transformer encoder consisting of *config.encoder_layers* self attention layers. Each layer is a
     [`BartEncoderLayer`].
@@ -882,7 +882,7 @@ class BartEncoder(BartPretrainedModel):
         )
 
 
-class BartDecoder(BartPretrainedModel):
+class EBartDecoder(BartPretrainedModel):
     """
     Transformer decoder consisting of *config.decoder_layers* layers. Each layer is a [`BartDecoderLayer`]
 
