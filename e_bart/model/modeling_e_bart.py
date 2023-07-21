@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ PyTorch BART model."""
+
+# Author "Clement Gillet" brought some modification to this file and some other dependencies to transform BART into EBART,
+# a BART-model leveraging ERE-information to generate summaries (inspired by GSUM, Dou et al. 2021)
+
 import copy
 import math
 import warnings
@@ -26,10 +30,8 @@ from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers.activations import ACT2FN
 from transformers.modeling_outputs import (
     BaseModelOutput,
-    BaseModelOutputWithPastAndCrossAttentions,
     CausalLMOutputWithCrossAttentions,
     Seq2SeqLMOutput,
-    Seq2SeqModelOutput,
     Seq2SeqQuestionAnsweringModelOutput,
     Seq2SeqSequenceClassifierOutput,
 )
@@ -44,6 +46,8 @@ from transformers.utils import (
 )
 
 from .configuration_bart import BartConfig
+
+from .modeling_outputs import ESeq2SeqModelOutput, EBaseModelOutputWithPastAndCrossAttentions
 
 logger = logging.get_logger(__name__)
 
@@ -293,7 +297,7 @@ class BartAttention(nn.Module):
         return attn_output, attn_weights_reshaped, past_key_value
 
 
-class EBartEncoderLayer(nn.Module):
+class BartEncoderLayer(nn.Module):
     def __init__(self, config: BartConfig):
         super().__init__()
         self.embed_dim = config.d_model
@@ -377,7 +381,13 @@ class EBartDecoderLayer(nn.Module):
         self.activation_dropout = config.activation_dropout
 
         self.self_attn_layer_norm = nn.LayerNorm(self.embed_dim)
-        self.encoder_attn = BartAttention(
+        self.g_encoder_attn = BartAttention(
+            self.embed_dim,
+            config.decoder_attention_heads,
+            dropout=config.attention_dropout,
+            is_decoder=True,
+        )
+        self.x_encoder_attn = BartAttention(
             self.embed_dim,
             config.decoder_attention_heads,
             dropout=config.attention_dropout,
@@ -393,6 +403,7 @@ class EBartDecoderLayer(nn.Module):
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         encoder_hidden_states: Optional[torch.Tensor] = None,
+        guidance_hidden_states: Optional[torch.Tensor] = None,
         encoder_attention_mask: Optional[torch.Tensor] = None,
         layer_head_mask: Optional[torch.Tensor] = None,
         cross_attn_layer_head_mask: Optional[torch.Tensor] = None,
@@ -418,6 +429,9 @@ class EBartDecoderLayer(nn.Module):
                 Whether or not to return the attentions tensors of all attention layers. See `attentions` under
                 returned tensors for more detail.
         """
+
+# many variables here have the same name and are updated as we go through the pipeline, which is fine because it is  a very sequential code reading
+
         residual = hidden_states
 
         # Self Attention
@@ -435,15 +449,38 @@ class EBartDecoderLayer(nn.Module):
         hidden_states = residual + hidden_states
         hidden_states = self.self_attn_layer_norm(hidden_states)
 
-        # Cross-Attention Block
+        # Guidance Cross-Attention Block
         cross_attn_present_key_value = None
-        cross_attn_weights = None
+        g_cross_attn_weights = None
+        if guidance_hidden_states is not None:
+            residual = hidden_states
+
+            # cross_attn cached key/values tuple is at positions 3,4 of present_key_value tuple
+            cross_attn_past_key_value = past_key_value[-2:] if past_key_value is not None else None
+            hidden_states, g_cross_attn_weights, cross_attn_present_key_value = self.g_encoder_attn(
+                hidden_states=hidden_states,
+                key_value_states=guidance_hidden_states,
+                attention_mask=encoder_attention_mask,
+                layer_head_mask=cross_attn_layer_head_mask,
+                past_key_value=cross_attn_past_key_value,
+                output_attentions=output_attentions,
+            )
+            hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
+            hidden_states = residual + hidden_states
+            hidden_states = self.encoder_attn_layer_norm(hidden_states)
+
+            # add cross-attn to positions 3,4 of present_key_value tuple
+            present_key_value = present_key_value + cross_attn_present_key_value
+
+        # X Cross-Attention Block
+        cross_attn_present_key_value = None
+        x_cross_attn_weights = None
         if encoder_hidden_states is not None:
             residual = hidden_states
 
             # cross_attn cached key/values tuple is at positions 3,4 of present_key_value tuple
             cross_attn_past_key_value = past_key_value[-2:] if past_key_value is not None else None
-            hidden_states, cross_attn_weights, cross_attn_present_key_value = self.encoder_attn(
+            hidden_states, x_cross_attn_weights, cross_attn_present_key_value = self.x_encoder_attn(
                 hidden_states=hidden_states,
                 key_value_states=encoder_hidden_states,
                 attention_mask=encoder_attention_mask,
@@ -470,7 +507,7 @@ class EBartDecoderLayer(nn.Module):
         outputs = (hidden_states,)
 
         if output_attentions:
-            outputs += (self_attn_weights, cross_attn_weights)
+            outputs += (self_attn_weights,g_cross_attn_weights, x_cross_attn_weights)
 
         if use_cache:
             outputs += (present_key_value,)
@@ -700,7 +737,7 @@ BART_INPUTS_DOCSTRING = r"""
 """
 
 
-class EBartEncoder(BartPretrainedModel):
+class BartEncoder(BartPretrainedModel):
     """
     Transformer encoder consisting of *config.encoder_layers* self attention layers. Each layer is a
     [`BartEncoderLayer`].
@@ -710,8 +747,10 @@ class EBartEncoder(BartPretrainedModel):
         embed_tokens (nn.Embedding): output embedding
     """
 
-    def __init__(self, config: BartConfig, embed_tokens: Optional[nn.Embedding] = None):
+    def     __init__(self, config: BartConfig, number_of_layers: int, embed_tokens: Optional[nn.Embedding] = None):
         super().__init__(config)
+
+        self.number_of_layers = number_of_layers
 
         self.dropout = config.dropout
         self.layerdrop = config.encoder_layerdrop
@@ -730,7 +769,7 @@ class EBartEncoder(BartPretrainedModel):
             config.max_position_embeddings,
             embed_dim,
         )
-        self.layers = nn.ModuleList([BartEncoderLayer(config) for _ in range(config.encoder_layers)])
+        self.layers = nn.ModuleList([BartEncoderLayer(config) for _ in range(self.number_of_layers)])
         self.layernorm_embedding = nn.LayerNorm(embed_dim)
 
         self.gradient_checkpointing = False
@@ -882,7 +921,7 @@ class EBartEncoder(BartPretrainedModel):
         )
 
 
-class EBartDecoder(BartPretrainedModel):
+class BartDecoder(BartPretrainedModel):
     """
     Transformer decoder consisting of *config.decoder_layers* layers. Each layer is a [`BartDecoderLayer`]
 
@@ -908,7 +947,7 @@ class EBartDecoder(BartPretrainedModel):
             config.max_position_embeddings,
             config.d_model,
         )
-        self.layers = nn.ModuleList([BartDecoderLayer(config) for _ in range(config.decoder_layers)])
+        self.layers = nn.ModuleList([EBartDecoderLayer(config) for _ in range(config.decoder_layers)])
         self.layernorm_embedding = nn.LayerNorm(config.d_model)
 
         self.gradient_checkpointing = False
@@ -949,6 +988,7 @@ class EBartDecoder(BartPretrainedModel):
         input_ids: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
         encoder_hidden_states: Optional[torch.FloatTensor] = None,
+        guidance_hidden_states: Optional[torch.FloatTensor] = None,
         encoder_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         cross_attn_head_mask: Optional[torch.Tensor] = None,
@@ -958,7 +998,7 @@ class EBartDecoder(BartPretrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, BaseModelOutputWithPastAndCrossAttentions]:
+    ) -> Union[Tuple, EBaseModelOutputWithPastAndCrossAttentions]:
         r"""
         Args:
             input_ids (`torch.LongTensor` of shape `(batch_size, sequence_length)`):
@@ -1079,6 +1119,7 @@ class EBartDecoder(BartPretrainedModel):
         all_hidden_states = () if output_hidden_states else None
         all_self_attns = () if output_attentions else None
         all_cross_attentions = () if (output_attentions and encoder_hidden_states is not None) else None
+        g_cross_attentions = () if (output_attentions and encoder_hidden_states is not None) else None
         next_decoder_cache = () if use_cache else None
 
         # check if head_mask/cross_attn_head_mask has a correct number of layers specified if desired
@@ -1144,6 +1185,7 @@ class EBartDecoder(BartPretrainedModel):
 
                 if encoder_hidden_states is not None:
                     all_cross_attentions += (layer_outputs[2],)
+                    g_cross_attentions += (layer_outputs[2],)
 
         # add hidden states from the last decoder layer
         if output_hidden_states:
@@ -1153,15 +1195,16 @@ class EBartDecoder(BartPretrainedModel):
         if not return_dict:
             return tuple(
                 v
-                for v in [hidden_states, next_cache, all_hidden_states, all_self_attns, all_cross_attentions]
+                for v in [hidden_states, next_cache, all_hidden_states, all_self_attns, all_cross_attentions, g_cross_attentions]
                 if v is not None
             )
-        return BaseModelOutputWithPastAndCrossAttentions(
+        return EBaseModelOutputWithPastAndCrossAttentions(
             last_hidden_state=hidden_states,
             past_key_values=next_cache,
             hidden_states=all_hidden_states,
             attentions=all_self_attns,
-            cross_attentions=all_cross_attentions,
+            x_cross_attentions=all_cross_attentions,
+            g_cross_attentions=g_cross_attentions,
         )
 
 
@@ -1177,7 +1220,13 @@ class EBartModel(BartPretrainedModel):
 
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
         self.shared = nn.Embedding(vocab_size, config.d_model, padding_idx)
-        self.encoder = BartEncoder(config, self.shared)
+
+        self.encoder_x = BartEncoder(config, config.shared_encoder_layers, self.shared) # 11 layers for x (shared weights)
+        self.encoder_g = BartEncoder(config, config.shared_encoder_layers, self.shared) # 11 layers for g (shared weights)
+
+        self.document_head = BartEncoder(config, config.encoder_heads, self.shared) # 1 separate layer for x
+        self.guidance_head = BartEncoder(config, config.encoder_heads, self.shared) # 1 separate layer for g
+
         self.decoder = BartDecoder(config, self.shared)
 
         # Initialize weights and apply final processing
@@ -1200,20 +1249,22 @@ class EBartModel(BartPretrainedModel):
     @add_start_docstrings_to_model_forward(BART_INPUTS_DOCSTRING)
     @add_code_sample_docstrings(
         checkpoint=_CHECKPOINT_FOR_DOC,
-        output_type=Seq2SeqModelOutput,
+        output_type=ESeq2SeqModelOutput,
         config_class=_CONFIG_FOR_DOC,
         expected_output=_EXPECTED_OUTPUT_SHAPE,
     )
     def forward(
         self,
         input_ids: torch.LongTensor = None,
+        g: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
         decoder_input_ids: Optional[torch.LongTensor] = None,
         decoder_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         decoder_head_mask: Optional[torch.Tensor] = None,
         cross_attn_head_mask: Optional[torch.Tensor] = None,
-        encoder_outputs: Optional[List[torch.FloatTensor]] = None,
+        x_encoder_outputs: Optional[List[torch.FloatTensor]] = None,
+        guidance: Optional[List[torch.FloatTensor]] = None,
         past_key_values: Optional[List[torch.FloatTensor]] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
         decoder_inputs_embeds: Optional[torch.FloatTensor] = None,
@@ -1221,7 +1272,7 @@ class EBartModel(BartPretrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-    ) -> Union[Tuple, Seq2SeqModelOutput]:
+    ) -> Union[Tuple, ESeq2SeqModelOutput]:
         # different to other models, Bart automatically creates decoder_input_ids from
         # input_ids if no decoder_input_ids are provided
         if decoder_input_ids is None and decoder_inputs_embeds is None:
@@ -1243,8 +1294,8 @@ class EBartModel(BartPretrainedModel):
         use_cache = use_cache if use_cache is not None else self.config.use_cache
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        if encoder_outputs is None:
-            encoder_outputs = self.encoder(
+        if x_encoder_outputs is None:
+            x_encoder = self.encoder_x(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 head_mask=head_mask,
@@ -1253,19 +1304,60 @@ class EBartModel(BartPretrainedModel):
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
             )
-        # If the user passed a tuple for encoder_outputs, we wrap it in a BaseModelOutput when return_dict=True
-        elif return_dict and not isinstance(encoder_outputs, BaseModelOutput):
-            encoder_outputs = BaseModelOutput(
-                last_hidden_state=encoder_outputs[0],
-                hidden_states=encoder_outputs[1] if len(encoder_outputs) > 1 else None,
-                attentions=encoder_outputs[2] if len(encoder_outputs) > 2 else None,
+
+            x_encoder_outputs = self.document_head(
+                input_ids=None,
+                attention_mask=attention_mask,
+                head_mask=head_mask,
+                inputs_embeds=x_encoder.last_hidden_state,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+            )
+        # If the user passed a tuple for x_encoder_outputs, we wrap it in a BaseModelOutput when return_dict=True
+        elif return_dict and not isinstance(x_encoder_outputs, BaseModelOutput):
+
+            x_encoder_outputs = BaseModelOutput(
+                last_hidden_state=x_encoder_outputs[0],
+                hidden_states=x_encoder_outputs[1] if len(x_encoder_outputs) > 1 else None,
+                attentions=x_encoder_outputs[2] if len(x_encoder_outputs) > 2 else None,
+            )
+
+        if guidance is None:
+            g_encoder = self.encoder_g(
+                input_ids=g,
+                attention_mask=attention_mask,
+                head_mask=head_mask,
+                inputs_embeds=inputs_embeds,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+            )
+
+            guidance = self.guidance_head(
+                input_ids=None,
+                attention_mask=attention_mask,
+                head_mask=head_mask,
+                inputs_embeds=g_encoder.last_hidden_state,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+            )
+        # If the user passed a tuple for guidance, we wrap it in a BaseModelOutput when return_dict=True
+        elif return_dict and not isinstance(guidance, BaseModelOutput):
+
+            guidance = BaseModelOutput(
+                last_hidden_state=guidance[0],
+                hidden_states=guidance[1] if len(guidance) > 1 else None,
+                attentions=guidance[2] if len(guidance) > 2 else None,
             )
 
         # decoder outputs consists of (dec_features, past_key_value, dec_hidden, dec_attn)
         decoder_outputs = self.decoder(
             input_ids=decoder_input_ids,
             attention_mask=decoder_attention_mask,
-            encoder_hidden_states=encoder_outputs[0],
+            encoder_hidden_states=x_encoder_outputs[0],
+            guidance_hidden_states=guidance[0],
             encoder_attention_mask=attention_mask,
             head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
@@ -1278,17 +1370,21 @@ class EBartModel(BartPretrainedModel):
         )
 
         if not return_dict:
-            return decoder_outputs + encoder_outputs
+            return decoder_outputs + x_encoder_outputs + guidance # why is this for ?
 
-        return Seq2SeqModelOutput(
+        return ESeq2SeqModelOutput(
             last_hidden_state=decoder_outputs.last_hidden_state,
             past_key_values=decoder_outputs.past_key_values,
             decoder_hidden_states=decoder_outputs.hidden_states,
             decoder_attentions=decoder_outputs.attentions,
             cross_attentions=decoder_outputs.cross_attentions,
-            encoder_last_hidden_state=encoder_outputs.last_hidden_state,
-            encoder_hidden_states=encoder_outputs.hidden_states,
-            encoder_attentions=encoder_outputs.attentions,
+            g_cross_attentions=decoder_outputs.g_cross_attentions,
+            encoder_last_hidden_state=x_encoder_outputs.last_hidden_state,
+            encoder_hidden_states=x_encoder_outputs.hidden_states,
+            encoder_attentions=x_encoder_outputs.attentions,
+            g_encoder_last_hidden_state=guidance.last_hidden_state,
+            g_encoder_hidden_states=guidance.hidden_states,
+            g_encoder_attentions=guidance.attentions,
         )
 
 

@@ -14,6 +14,7 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 
 from model.modeling_e_bart import EBartModel
+from .ESeq2Seq_Trainer import ESeq2SeqTrainer
 
 
 @dataclass
@@ -30,6 +31,18 @@ class CustomArguments:
 
     test_file: str = field(
         metadata={"help": "Provide a csv or json file for the test set"}
+    )
+
+    train_guidance: str = field(
+        metadata={"help": "Provide a csv or json file for the guidance signal"}
+    )
+
+    val_guidance: str = field(
+        metadata={"help": "Provide a csv or json file for the guidance signal"}
+    )
+
+    test_guidance: str = field(
+        metadata={"help": "Provide a csv or json file for the guidance signal"}
     )
 
     checkpoint_file: str = field(
@@ -72,6 +85,11 @@ def main():
     data_files["validation"] = args.val_file
     data_files["test"] = args.test_file
 
+    # Get the guidance
+    guidance_files = {"train": args.train_guidance}
+    guidance_files["validation"] = args.val_guidance
+    guidance_files["test"] = args.test_guidance
+
     extension = args.test_file.split(".")[-1]
 
     raw_datasets = load_dataset(
@@ -79,16 +97,24 @@ def main():
         data_files=data_files,
     )
 
+    # Note that train, val and test guidance don't contain any  labels (x and no y) (only one column)
+    raw_guidance = load_dataset(
+        extension,
+        data_files=guidance_files,
+    )
+
     # Load configuration (sets architecture to follow, i.e. e_bart)
     my_config = AutoConfig.from_pretrained("model/config.json")
-    print(my_config)
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
-    print(tokenizer)
 
     # Load pretrained weights
+    model = BartModel()
+
     model = EBartModel(my_config)
+
+
     print(model)
 
     text_column = "document"
@@ -112,7 +138,7 @@ def main():
                 targets.append(examples[summary_column][i])
 
         inputs = [inp for inp in inputs]
-        # In NarraSum, the auhors let truncation happen too.
+        # In NarraSum, the authors let truncation happen too.
         model_inputs = tokenizer(inputs, max_length=max_source_length, padding=padding, truncation=True)
 
         # Tokenize targets with the `text_target` keyword argument
@@ -129,9 +155,11 @@ def main():
         return model_inputs
 
     train_dataset = raw_datasets["train"]
+    train_guidance = raw_guidance["train"]
     if args.max_train_samples is not None:
         max_train_samples = min(len(raw_datasets["train"]), args.max_train_samples)
         train_dataset = raw_datasets["train"].select(range(max_train_samples))
+        train_guidance = raw_guidance["train"].select(range(max_train_samples))
 
     """
     A context manager for torch distributed environment where on needs to do something on the main process, while blocking replicas, and when
@@ -151,6 +179,13 @@ def main():
             remove_columns=train_dataset.column_names,
             desc="Running tokenizer on train dataset",
         )
+        train_guidance = train_guidance.map(
+            preprocess_function,
+            batched=True,
+            num_proc=args.preprocessing_num_workers,
+            remove_columns=train_dataset.column_names,
+            desc="Running tokenizer on train guidance",
+        )
 
     # Data collator
     label_pad_token_id = -100
@@ -161,10 +196,11 @@ def main():
     )
 
     # Initialize our Trainer
-    trainer = Seq2SeqTrainer(
+    trainer = ESeq2SeqTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
+        train_guidance=train_guidance,
         eval_dataset= None,
         tokenizer=tokenizer,
         data_collator=data_collator,
@@ -182,7 +218,7 @@ def main():
 
     metrics = train_result.metrics
     max_train_samples = (
-        data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
+        args.max_train_samples if args.max_train_samples is not None else len(train_dataset)
     )
     metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
