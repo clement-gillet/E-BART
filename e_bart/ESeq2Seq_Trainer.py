@@ -24,7 +24,7 @@ from transformers.deepspeed import is_deepspeed_zero3_enabled
 from transformers.generation.configuration_utils import GenerationConfig
 from transformers.utils import logging
 
-from .trainer import Trainer
+from trainer import Trainer
 
 
 if TYPE_CHECKING:

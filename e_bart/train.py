@@ -8,13 +8,13 @@ from transformers import (
     AutoConfig,
     AutoTokenizer,
     DataCollatorForSeq2Seq,
-    Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
 )
+
 from transformers.trainer_utils import get_last_checkpoint
 
 from model.modeling_e_bart import EBartModel
-from .ESeq2Seq_Trainer import ESeq2SeqTrainer
+from ESeq2Seq_Trainer import ESeq2SeqTrainer
 
 
 @dataclass
@@ -110,8 +110,6 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    model = BartModel()
-
     model = EBartModel(my_config)
 
 
@@ -183,7 +181,7 @@ def main():
             preprocess_function,
             batched=True,
             num_proc=args.preprocessing_num_workers,
-            remove_columns=train_dataset.column_names,
+            remove_columns=train_guidance.column_names,
             desc="Running tokenizer on train guidance",
         )
 
