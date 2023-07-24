@@ -35,7 +35,9 @@ from transformers.modeling_outputs import (
     Seq2SeqQuestionAnsweringModelOutput,
     Seq2SeqSequenceClassifierOutput,
 )
-from transformers.modeling_utils import PreTrainedModel
+from .modeling_utils import PreTrainedModel
+
+
 from transformers.utils import (
     add_code_sample_docstrings,
     add_end_docstrings,
@@ -1399,7 +1401,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
 
     def __init__(self, config: BartConfig):
         super().__init__(config)
-        self.model = BartModel(config)
+        self.model = EBartModel(config)
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 
@@ -1438,13 +1440,15 @@ class BartForConditionalGeneration(BartPretrainedModel):
     def forward(
         self,
         input_ids: torch.LongTensor = None,
+        g: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
         decoder_input_ids: Optional[torch.LongTensor] = None,
         decoder_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         decoder_head_mask: Optional[torch.Tensor] = None,
         cross_attn_head_mask: Optional[torch.Tensor] = None,
-        encoder_outputs: Optional[List[torch.FloatTensor]] = None,
+        x_encoder_outputs: Optional[List[torch.FloatTensor]] = None,
+        guidance: torch.LongTensor = None,
         past_key_values: Optional[List[torch.FloatTensor]] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
         decoder_inputs_embeds: Optional[torch.FloatTensor] = None,
@@ -1475,9 +1479,11 @@ class BartForConditionalGeneration(BartPretrainedModel):
 
         outputs = self.model(
             input_ids,
+            g=g,
             attention_mask=attention_mask,
             decoder_input_ids=decoder_input_ids,
-            encoder_outputs=encoder_outputs,
+            x_encoder_outputs=x_encoder_outputs,
+            guidance=guidance,
             decoder_attention_mask=decoder_attention_mask,
             head_mask=head_mask,
             decoder_head_mask=decoder_head_mask,

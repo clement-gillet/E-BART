@@ -13,7 +13,7 @@ from transformers import (
 
 from transformers.trainer_utils import get_last_checkpoint
 
-from model.modeling_e_bart import EBartModel
+from model.modeling_e_bart import BartForConditionalGeneration
 from ESeq2Seq_Trainer import ESeq2SeqTrainer
 
 import wandb
@@ -48,7 +48,7 @@ class CustomArguments:
     )
 
     checkpoint_file: str = field(
-        default=None, metadata={"help": "If the training shall be resumed from a checkpoint file, the user inputs a .pt or .bin file"},
+        default=None, metadata={"help": "Provide a .bi file for resuming training or inference"}
     )
 
     max_train_samples: int = field(
@@ -123,7 +123,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    model = EBartModel(my_config)
+    pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/bart.large/model.pt"
+    model = BartForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=pretrained_weights, config=my_config)
 
     print(model)
 
@@ -203,7 +204,6 @@ def main():
     )
 
     # Initialize our Trainer
-
     trainer = ESeq2SeqTrainer(
         model=model,
         args=training_args,

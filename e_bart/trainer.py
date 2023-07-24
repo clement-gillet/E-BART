@@ -681,7 +681,6 @@ class Trainer:
             )
 
         # Label smoothing
-        self.args.label_smoothing_factor = 1
         if self.args.label_smoothing_factor != 0:
             self.label_smoother = LabelSmoother(epsilon=self.args.label_smoothing_factor)
         else:
@@ -895,8 +894,8 @@ class Trainer:
         train_dataset = self.train_dataset
         data_collator = self.data_collator
         if is_datasets_available() and isinstance(train_dataset, datasets.Dataset):
-            #train_dataset = self._remove_unused_columns(train_dataset, description="training")
-            pass
+            train_dataset = self._remove_unused_columns(train_dataset, description="training")
+
         else:
             data_collator = self._get_collator_with_removed_columns(data_collator, description="training")
 
