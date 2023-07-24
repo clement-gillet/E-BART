@@ -448,7 +448,6 @@ class EBartDecoderLayer(nn.Module):
         hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
         hidden_states = residual + hidden_states
         hidden_states = self.self_attn_layer_norm(hidden_states)
-
         # Guidance Cross-Attention Block
         cross_attn_present_key_value = None
         g_cross_attn_weights = None
@@ -1141,7 +1140,6 @@ class BartDecoder(BartPretrainedModel):
                 dropout_probability = torch.rand([])
                 if dropout_probability < self.layerdrop:
                     continue
-
             past_key_value = past_key_values[idx] if past_key_values is not None else None
 
             if self.gradient_checkpointing and self.training:
@@ -1177,6 +1175,7 @@ class BartDecoder(BartPretrainedModel):
                     output_attentions=output_attentions,
                     use_cache=use_cache,
                 )
+
             hidden_states = layer_outputs[0]
 
             if use_cache:
@@ -1186,9 +1185,8 @@ class BartDecoder(BartPretrainedModel):
                 all_self_attns += (layer_outputs[1],)
 
                 if encoder_hidden_states is not None:
-                    all_cross_attentions += (layer_outputs[2],)
+                    all_cross_attentions += (layer_outputs[3],)
                     g_cross_attentions += (layer_outputs[2],)
-
         # add hidden states from the last decoder layer
         if output_hidden_states:
             all_hidden_states += (hidden_states,)
@@ -1325,7 +1323,7 @@ class EBartModel(BartPretrainedModel):
                 hidden_states=x_encoder_outputs[1] if len(x_encoder_outputs) > 1 else None,
                 attentions=x_encoder_outputs[2] if len(x_encoder_outputs) > 2 else None,
             )
-        print("1) jusqu'ici tout va bien...")
+
         if guidance is None:
             g_encoder = self.encoder_g(
                 input_ids=g,
@@ -1336,8 +1334,6 @@ class EBartModel(BartPretrainedModel):
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
             )
-
-            print("2) jusqu'ici tout va bien...")
 
             guidance = self.guidance_head(
                 input_ids=None,
@@ -1357,8 +1353,6 @@ class EBartModel(BartPretrainedModel):
                 attentions=guidance[2] if len(guidance) > 2 else None,
             )
 
-        print("3) jusqu'ici tout va bien...")
-
         # decoder outputs consists of (dec_features, past_key_value, dec_hidden, dec_attn)
         decoder_outputs = self.decoder(
             input_ids=decoder_input_ids,
@@ -1376,8 +1370,6 @@ class EBartModel(BartPretrainedModel):
             return_dict=return_dict,
         )
 
-        print("4) jusqu'ici tout va bien...")
-
         if not return_dict:
             return decoder_outputs + x_encoder_outputs + guidance # why is this for ?
 
@@ -1386,7 +1378,7 @@ class EBartModel(BartPretrainedModel):
             past_key_values=decoder_outputs.past_key_values,
             decoder_hidden_states=decoder_outputs.hidden_states,
             decoder_attentions=decoder_outputs.attentions,
-            cross_attentions=decoder_outputs.cross_attentions,
+            cross_attentions=decoder_outputs.x_cross_attentions,
             g_cross_attentions=decoder_outputs.g_cross_attentions,
             encoder_last_hidden_state=x_encoder_outputs.last_hidden_state,
             encoder_hidden_states=x_encoder_outputs.hidden_states,
