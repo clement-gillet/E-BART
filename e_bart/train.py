@@ -16,6 +16,8 @@ from transformers.trainer_utils import get_last_checkpoint
 from model.modeling_e_bart import EBartModel
 from ESeq2Seq_Trainer import ESeq2SeqTrainer
 
+import wandb
+import json
 
 @dataclass
 class CustomArguments:
@@ -67,6 +69,11 @@ class CustomArguments:
 
 
 def main():
+    with open('model/config.json') as config_file:
+        config_wandb = json.load(config_file)
+
+    wandb.init(project="THESIS", config=config_wandb, name="EBART_V0")
+
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
 
@@ -98,10 +105,16 @@ def main():
     )
 
     # Note that train, val and test guidance don't contain any  labels (x and no y) (only one column)
+    # For now, we input as guidance the exact same as x but we will change this later
+
     raw_guidance = load_dataset(
         extension,
         data_files=guidance_files,
     )
+
+    raw_datasets["train"] = raw_datasets["train"].add_column("guidance", raw_guidance.data["train"]["document"])
+    raw_datasets["validation"] = raw_datasets["validation"].add_column("guidance", raw_guidance.data["validation"]["document"])
+    raw_datasets["test"] = raw_datasets["test"].add_column("guidance", raw_guidance.data["test"]["document"])
 
     # Load configuration (sets architecture to follow, i.e. e_bart)
     my_config = AutoConfig.from_pretrained("model/config.json")
@@ -112,11 +125,11 @@ def main():
     # Load pretrained weights
     model = EBartModel(my_config)
 
-
     print(model)
 
     text_column = "document"
     summary_column = "summary"
+    guidance_column = "guidance"
 
     max_source_length = 1024
     max_target_length = 240
@@ -129,15 +142,19 @@ def main():
 
         # remove pairs where at least one record is None
 
-        inputs, targets = [], []
+        inputs, guidance, targets = [], [], []
         for i in range(len(examples[text_column])):
-            if examples[text_column][i] and examples[summary_column][i]:
+            if examples[text_column][i] and examples[summary_column][i] and examples[guidance_column][i] :
                 inputs.append(examples[text_column][i])
                 targets.append(examples[summary_column][i])
+                guidance.append(examples[guidance_column][i])
 
         inputs = [inp for inp in inputs]
+        guidance = [guid for guid in guidance]
+
         # In NarraSum, the authors let truncation happen too.
         model_inputs = tokenizer(inputs, max_length=max_source_length, padding=padding, truncation=True)
+        guidance = tokenizer(guidance, max_length=max_source_length, padding=padding, truncation=True)
 
         # Tokenize targets with the `text_target` keyword argument
         labels = tokenizer(text_target=targets, max_length=max_target_length, padding=padding, truncation=True)
@@ -150,14 +167,13 @@ def main():
             ]
 
         model_inputs["labels"] = labels["input_ids"]
+        model_inputs["guidance"] = guidance["input_ids"]
         return model_inputs
 
     train_dataset = raw_datasets["train"]
-    train_guidance = raw_guidance["train"]
     if args.max_train_samples is not None:
         max_train_samples = min(len(raw_datasets["train"]), args.max_train_samples)
         train_dataset = raw_datasets["train"].select(range(max_train_samples))
-        train_guidance = raw_guidance["train"].select(range(max_train_samples))
 
     """
     A context manager for torch distributed environment where on needs to do something on the main process, while blocking replicas, and when
@@ -177,13 +193,6 @@ def main():
             remove_columns=train_dataset.column_names,
             desc="Running tokenizer on train dataset",
         )
-        train_guidance = train_guidance.map(
-            preprocess_function,
-            batched=True,
-            num_proc=args.preprocessing_num_workers,
-            remove_columns=train_guidance.column_names,
-            desc="Running tokenizer on train guidance",
-        )
 
     # Data collator
     label_pad_token_id = -100
@@ -198,13 +207,11 @@ def main():
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        train_guidance=train_guidance,
         eval_dataset= None,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics= None,
     )
-
 
     checkpoint = None
     if args.checkpoint_file is not None:

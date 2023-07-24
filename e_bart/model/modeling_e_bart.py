@@ -931,7 +931,9 @@ class BartDecoder(BartPretrainedModel):
     """
 
     def __init__(self, config: BartConfig, embed_tokens: Optional[nn.Embedding] = None):
+
         super().__init__(config)
+
         self.dropout = config.dropout
         self.layerdrop = config.decoder_layerdrop
         self.padding_idx = config.pad_token_id
@@ -1314,6 +1316,7 @@ class EBartModel(BartPretrainedModel):
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
             )
+
         # If the user passed a tuple for x_encoder_outputs, we wrap it in a BaseModelOutput when return_dict=True
         elif return_dict and not isinstance(x_encoder_outputs, BaseModelOutput):
 
@@ -1322,7 +1325,7 @@ class EBartModel(BartPretrainedModel):
                 hidden_states=x_encoder_outputs[1] if len(x_encoder_outputs) > 1 else None,
                 attentions=x_encoder_outputs[2] if len(x_encoder_outputs) > 2 else None,
             )
-
+        print("1) jusqu'ici tout va bien...")
         if guidance is None:
             g_encoder = self.encoder_g(
                 input_ids=g,
@@ -1333,6 +1336,8 @@ class EBartModel(BartPretrainedModel):
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
             )
+
+            print("2) jusqu'ici tout va bien...")
 
             guidance = self.guidance_head(
                 input_ids=None,
@@ -1352,6 +1357,8 @@ class EBartModel(BartPretrainedModel):
                 attentions=guidance[2] if len(guidance) > 2 else None,
             )
 
+        print("3) jusqu'ici tout va bien...")
+
         # decoder outputs consists of (dec_features, past_key_value, dec_hidden, dec_attn)
         decoder_outputs = self.decoder(
             input_ids=decoder_input_ids,
@@ -1368,6 +1375,8 @@ class EBartModel(BartPretrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
+
+        print("4) jusqu'ici tout va bien...")
 
         if not return_dict:
             return decoder_outputs + x_encoder_outputs + guidance # why is this for ?

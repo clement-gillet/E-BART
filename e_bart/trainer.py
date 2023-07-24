@@ -60,7 +60,7 @@ import torch.distributed as dist
 from huggingface_hub import Repository, create_repo
 from packaging import version
 from torch import nn
-from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
+from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler, Sampler
 from torch.utils.data.distributed import DistributedSampler
 
 from transformers import __version__
@@ -329,7 +329,6 @@ class Trainer:
         data_collator: Optional[DataCollator] = None,
         train_dataset: Optional[Dataset] = None,
         eval_dataset: Optional[Union[Dataset, Dict[str, Dataset]]] = None,
-        train_guidance: Optional[Dataset] = None,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         model_init: Optional[Callable[[], PreTrainedModel]] = None,
         compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None,
@@ -506,7 +505,6 @@ class Trainer:
         self.data_collator = data_collator if data_collator is not None else default_collator
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
-        self.train_guidance = train_guidance
         self.tokenizer = tokenizer
 
         if self.place_model_on_device and not getattr(model, "is_loaded_in_8bit", False):
@@ -810,7 +808,7 @@ class Trainer:
         )
         return remove_columns_collator
 
-    def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
+    def _get_train_sampler(self) -> Optional[Sampler]:
         if self.train_dataset is None or not has_length(self.train_dataset):
             return None
 
@@ -909,7 +907,6 @@ class Trainer:
                     num_processes=self.args.world_size,
                     process_index=self.args.process_index,
                 )
-
             return DataLoader(
                 train_dataset,
                 batch_size=self._train_batch_size,
@@ -930,156 +927,6 @@ class Trainer:
             pin_memory=self.args.dataloader_pin_memory,
             worker_init_fn=seed_worker,
         )
-
-    def _get_train_guidance_sampler(self) -> Optional[torch.utils.data.Sampler]:
-        if self.train_guidance is None or not has_length(self.train_guidance):
-            return None
-
-        generator = None
-        if self.args.world_size <= 1:
-            generator = torch.Generator()
-            # for backwards compatibility, we generate a seed here (which is sampled from a generator seeded with
-            # `args.seed`) if data_seed isn't provided.
-            # Further on in this method, we default to `args.seed` instead.
-            if self.args.data_seed is None:
-                seed = int(torch.empty((), dtype=torch.int64).random_().item())
-            else:
-                seed = self.args.data_seed
-            generator.manual_seed(seed)
-
-        seed = self.args.data_seed if self.args.data_seed is not None else self.args.seed
-
-        # Build the sampler.
-        if self.args.group_by_length:
-            if is_datasets_available() and isinstance(self.train_guidance, datasets.Dataset):
-                lengths = (
-                    self.train_guidance[self.args.length_column_name]
-                    if self.args.length_column_name in self.train_guidance.column_names
-                    else None
-                )
-            else:
-                lengths = None
-            model_input_name = self.tokenizer.model_input_names[0] if self.tokenizer is not None else None
-            if self.args.world_size <= 1:
-                return LengthGroupedSampler(
-                    self.args.train_batch_size * self.args.gradient_accumulation_steps,
-                    dataset=self.train_guidance,
-                    lengths=lengths,
-                    model_input_name=model_input_name,
-                    generator=generator,
-                )
-            else:
-                return DistributedLengthGroupedSampler(
-                    self.args.train_batch_size * self.args.gradient_accumulation_steps,
-                    dataset=self.train_guidance,
-                    num_replicas=self.args.world_size,
-                    rank=self.args.process_index,
-                    lengths=lengths,
-                    model_input_name=model_input_name,
-                    seed=seed,
-                )
-
-        else:
-            if self.args.world_size <= 1:
-                return RandomSampler(self.train_guidance, generator=generator)
-            elif (
-                self.args.parallel_mode in [ParallelMode.TPU, ParallelMode.SAGEMAKER_MODEL_PARALLEL]
-                and not self.args.dataloader_drop_last
-            ):
-                # Use a loop for TPUs when drop_last is False to have all batches have the same size.
-                return DistributedSamplerWithLoop(
-                    self.train_guidance,
-                    batch_size=self.args.per_device_train_batch_size,
-                    num_replicas=self.args.world_size,
-                    rank=self.args.process_index,
-                    seed=seed,
-                )
-            else:
-                return DistributedSampler(
-                    self.train_guidance,
-                    num_replicas=self.args.world_size,
-                    rank=self.args.process_index,
-                    seed=seed,
-                )
-
-    def get_train_guidance_dataloader(self) -> DataLoader:
-        """
-        Returns the training [`~torch.utils.data.DataLoader`].
-
-        Will use no sampler if `train_dataset` does not implement `__len__`, a random sampler (adapted to distributed
-        training if necessary) otherwise.
-
-        Subclass and override this method if you want to inject some custom behavior.
-        """
-        if self.train_guidance is None:
-            raise ValueError("Trainer: training requires a train_guidance.")
-
-        train_guidance = self.train_guidance
-        data_collator = self.data_collator
-        if is_datasets_available() and isinstance(train_guidance, datasets.Dataset):
-            train_dataset = self._remove_unused_columns(train_guidance, description="training")
-        else:
-            data_collator = self._get_collator_with_removed_columns(data_collator, description="training")
-
-        if isinstance(train_guidance, torch.utils.data.IterableDataset):
-            if self.args.world_size > 1:
-                train_dataset = IterableDatasetShard(
-                    train_guidance,
-                    batch_size=self._train_batch_size,
-                    drop_last=self.args.dataloader_drop_last,
-                    num_processes=self.args.world_size,
-                    process_index=self.args.process_index,
-                )
-
-            return DataLoader(
-                train_guidance,
-                batch_size=self._train_batch_size,
-                collate_fn=data_collator,
-                num_workers=self.args.dataloader_num_workers,
-                pin_memory=self.args.dataloader_pin_memory,
-            )
-
-        train_sampler = self._get_train_sampler()
-
-        return DataLoader(
-            train_guidance,
-            batch_size=self._train_batch_size,
-            sampler=train_sampler,
-            collate_fn=data_collator,
-            drop_last=self.args.dataloader_drop_last,
-            num_workers=self.args.dataloader_num_workers,
-            pin_memory=self.args.dataloader_pin_memory,
-            worker_init_fn=seed_worker,
-        )
-
-    def _get_eval_sampler(self, eval_dataset: Dataset) -> Optional[torch.utils.data.Sampler]:
-        # Deprecated code
-        if self.args.use_legacy_prediction_loop:
-            if is_torch_tpu_available():
-                return SequentialDistributedSampler(
-                    eval_dataset, num_replicas=xm.xrt_world_size(), rank=xm.get_ordinal()
-                )
-            elif is_sagemaker_mp_enabled():
-                return SequentialDistributedSampler(
-                    eval_dataset,
-                    num_replicas=smp.dp_size(),
-                    rank=smp.dp_rank(),
-                    batch_size=self.args.per_device_eval_batch_size,
-                )
-            elif self.args.parallel_mode == ParallelMode.DISTRIBUTED:
-                return SequentialDistributedSampler(eval_dataset)
-            else:
-                return SequentialSampler(eval_dataset)
-
-        if self.args.world_size <= 1:
-            return SequentialSampler(eval_dataset)
-        else:
-            return ShardSampler(
-                eval_dataset,
-                batch_size=self.args.per_device_eval_batch_size,
-                num_processes=self.args.world_size,
-                process_index=self.args.process_index,
-            )
 
     def get_eval_dataloader(self, eval_dataset: Optional[Dataset] = None) -> DataLoader:
         """
@@ -1780,7 +1627,6 @@ class Trainer:
         logger.debug(f"Currently training with a batch size of: {self._train_batch_size}")
         # Data loader and number of training steps
         train_dataloader = self.get_train_dataloader()
-        train_guidance_dataloader = self.get_train_guidance_dataloader()
 
         # Setting up training control variables:
         # number of training epochs: num_train_epochs
@@ -1960,7 +1806,6 @@ class Trainer:
         self.callback_handler.optimizer = self.optimizer
         self.callback_handler.lr_scheduler = self.lr_scheduler
         self.callback_handler.train_dataloader = train_dataloader
-        self.callback_handler.train_dataloader = train_guidance_dataloader
         if self.hp_name is not None and self._trial is not None:
             # use self._trial because the SigOpt/Optuna hpo only call `_hp_search_setup(trial)` instead of passing trial
             # parameter to Train when using DDP.
@@ -2000,7 +1845,7 @@ class Trainer:
                 else:
                     # Otherwise we need to call the whooooole sampler cause there is some random operation added
                     # AT THE VERY END!
-                    _ = list(train_dataloader.sampler)
+                    _ = list(train_dataloader.sampler[0])
 
         total_batched_samples = 0
         for epoch in range(epochs_trained, num_train_epochs):
@@ -2014,8 +1859,6 @@ class Trainer:
                 epoch_iterator = parallel_loader
             else:
                 epoch_iterator1 = train_dataloader
-                epoch_iterator2 = train_guidance_dataloader
-
             # Reset the past mems state at the beginning of each epoch if necessary.
             if args.past_index >= 0:
                 self._past = None
@@ -2034,13 +1877,12 @@ class Trainer:
             steps_skipped = 0
             if skip_first_batches is not None and steps_trained_in_current_epoch > 0:
                 epoch_iterator1 = skip_first_batches(epoch_iterator1, steps_trained_in_current_epoch)
-                epoch_iterator2 = skip_first_batches(epoch_iterator1, steps_trained_in_current_epoch)
                 steps_skipped = steps_trained_in_current_epoch
                 steps_trained_in_current_epoch = 0
                 rng_to_sync = True
 
             step = -1
-            for step, (x_inputs, g_inputs) in enumerate(zip(epoch_iterator1, epoch_iterator2)):
+            for step, x_inputs in enumerate(epoch_iterator1):
                 total_batched_samples += 1
                 if rng_to_sync:
                     self._load_rng_state(resume_from_checkpoint)
@@ -2062,7 +1904,7 @@ class Trainer:
                     self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
 
                 with self.accelerator.accumulate(model):
-                    tr_loss_step = self.training_step(model, x_inputs, g_inputs, )
+                    tr_loss_step = self.training_step(model, x_inputs)
 
                 if (
                     args.logging_nan_inf_filter
@@ -2858,7 +2700,7 @@ class Trainer:
 
         return ctx_manager
 
-    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], guidance: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
+    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 
@@ -2876,16 +2718,16 @@ class Trainer:
         Return:
             `torch.Tensor`: The tensor with training loss on this batch.
         """
+
         model.train()
         inputs = self._prepare_inputs(inputs)
-        guidance = self._prepare_inputs(guidance)
 
         if is_sagemaker_mp_enabled():
             loss_mb = smp_forward_backward(model, inputs, self.args.gradient_accumulation_steps)
             return loss_mb.reduce_mean().detach().to(self.args.device)
 
         with self.compute_loss_context_manager():
-            loss = self.compute_loss(model, inputs, guidance)
+            loss = self.compute_loss(model, inputs)
 
         if self.args.n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
@@ -2900,7 +2742,7 @@ class Trainer:
 
         return loss.detach() / self.args.gradient_accumulation_steps
 
-    def compute_loss(self, model, inputs, guidance, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False):
         """
         How the loss is computed by Trainer. By default, all models return the loss in the first element.
 
@@ -2911,6 +2753,8 @@ class Trainer:
         else:
             labels = None
         # forward call !!!
+        # guidance separation here !!!
+        guidance = inputs.pop("guidance")
         outputs = model(**inputs, g=guidance)
         # Save past state if it exists
         # TODO: this needs to be fixed and made cleaner later.
