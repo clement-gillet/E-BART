@@ -512,9 +512,7 @@ def _load_state_dict_into_model(model_to_load, state_dict, start_prefix):
     '''
 
     from .admin import convert
-    print(state_dict["model"].keys())
-    convert(state_dict["model"])
-
+    convert(state_dict)
 
     old_keys = []
     new_keys = []
