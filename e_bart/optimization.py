@@ -437,11 +437,16 @@ class AdamW(Optimizer):
         loss = None
         if closure is not None:
             loss = closure()
-
+        print("param_groups : ", len(self.param_groups))
+        #I suspect that param_groups are first weights and then biases
         for group in self.param_groups:
             for p in group["params"]:
+                # p is one tensor each time
+                # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
+                # (all params of 11 first parallel encoders)
                 if p.grad is None:
                     continue
+                # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
                 grad = p.grad
                 if grad.is_sparse:
                     raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
@@ -463,16 +468,23 @@ class AdamW(Optimizer):
 
                 # Decay the first and second moment running average coefficient
                 # In-place operations to update the averages at the same time
+
+                #v_t (see theory slide)
                 exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+
+                #s_t (see theory slide)
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+
+                #denom for update of weight/bias
                 denom = exp_avg_sq.sqrt().add_(group["eps"])
 
+                #alpha
                 step_size = group["lr"]
                 if group["correct_bias"]:  # No bias correction for Bert
                     bias_correction1 = 1.0 - beta1 ** state["step"]
                     bias_correction2 = 1.0 - beta2 ** state["step"]
                     step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
-
+                # add 2nd term of update to weight (p here)
                 p.addcdiv_(exp_avg, denom, value=-step_size)
 
                 # Just adding the square of the weights to the loss function is *not*
@@ -484,6 +496,7 @@ class AdamW(Optimizer):
                 # of the weights to the loss with plain (non-momentum) SGD.
                 # Add weight decay at the end (fixed version)
                 if group["weight_decay"] > 0.0:
+                    # add 3d term of update
                     p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
 
         return loss

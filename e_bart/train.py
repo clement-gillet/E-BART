@@ -123,7 +123,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/bart.large/model.pt"
+    pretrained_weights = '/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin'
     model = BartForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=pretrained_weights, config=my_config)
 
     print(model)
