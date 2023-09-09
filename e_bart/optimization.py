@@ -437,13 +437,15 @@ class AdamW(Optimizer):
         loss = None
         if closure is not None:
             loss = closure()
-        print("param_groups : ", len(self.param_groups))
-        #I suspect that param_groups are first weights and then biases
-        for group in self.param_groups:
-            for p in group["params"]:
-                # p is one tensor each time
-                # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
-                # (all params of 11 first parallel encoders)
+        #I suspect that param_groups are first weights and then biases (verified and it is so !!)
+
+        # group 1 (with weight decay) : index 1 to 68 is encoder_x weights, and index 69 to 136 is encoder_g weights
+        # group 2 (without weight decay) : index 0 to 101 is encoder_x biases ( + both of self_attnn_layernorm and final_layer_norm) + one-time layernorm embedding
+        # index 102 to 203 is encoder_g biases ( + both of self_attn_layernorm and final_layer_norm) + one-time layernorm embedding
+
+        for i, group in enumerate(self.param_groups):
+            if i==0 :
+                p = group["params"][0]
                 if p.grad is None:
                     continue
                 # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
@@ -469,16 +471,16 @@ class AdamW(Optimizer):
                 # Decay the first and second moment running average coefficient
                 # In-place operations to update the averages at the same time
 
-                #v_t (see theory slide)
+                # v_t (see theory slide)
                 exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
 
-                #s_t (see theory slide)
+                # s_t (see theory slide)
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
 
-                #denom for update of weight/bias
+                # denom for update of weight/bias
                 denom = exp_avg_sq.sqrt().add_(group["eps"])
 
-                #alpha
+                # alpha
                 step_size = group["lr"]
                 if group["correct_bias"]:  # No bias correction for Bert
                     bias_correction1 = 1.0 - beta1 ** state["step"]
@@ -496,11 +498,260 @@ class AdamW(Optimizer):
                 # of the weights to the loss with plain (non-momentum) SGD.
                 # Add weight decay at the end (fixed version)
                 if group["weight_decay"] > 0.0:
-                    # add 3d term of update
+                    # add 3d term of update (alpha*weight*weight_decay) see theory
                     p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
 
-        return loss
+                for p1,p2 in zip(group["params"][1:68], group["params"][68:135]):
+                    # p is one tensor each time
+                    # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
+                    # (all params of 11 first parallel encoders)
 
+                    if (p1.grad is None) or (p2.grad is None):
+                        continue
+                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
+                    # both gradients are added before all step computations (crucial step for shared weights approach)
+                    grad = p1.grad + p2.grad
+
+
+                    if grad.is_sparse:
+                        raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
+
+                    #p1 and p2 are supposed to be the same at all times (their gradient not though),
+                    # so we can just use one for state operations.
+                    # Still shoudl we save both states (p1 and p2) ?
+
+                    state = self.state[p1]
+
+                    # State initialization
+                    if len(state) == 0:
+                        state["step"] = 0
+                        # Exponential moving average of gradient values
+                        state["exp_avg"] = torch.zeros_like(p1)
+                        # Exponential moving average of squared gradient values
+                        state["exp_avg_sq"] = torch.zeros_like(p1)
+
+                    exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
+                    beta1, beta2 = group["betas"]
+
+                    state["step"] += 1
+
+                    # Decay the first and second moment running average coefficient
+                    # In-place operations to update the averages at the same time
+
+                    #v_t (see theory slide)
+                    exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+
+                    #s_t (see theory slide)
+                    exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+
+                    #denom for update of weight/bias
+                    denom = exp_avg_sq.sqrt().add_(group["eps"])
+
+                    #alpha
+                    step_size = group["lr"]
+                    if group["correct_bias"]:  # No bias correction for Bert
+                        bias_correction1 = 1.0 - beta1 ** state["step"]
+                        bias_correction2 = 1.0 - beta2 ** state["step"]
+                        step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
+                    # add 2nd term of update to weight (p here)
+
+                    p1.addcdiv_(exp_avg, denom, value=-step_size)
+                    p2.addcdiv_(exp_avg, denom, value=-step_size)
+
+                    # Just adding the square of the weights to the loss function is *not*
+                    # the correct way of using L2 regularization/weight decay with Adam,
+                    # since that will interact with the m and v parameters in strange ways.
+                    #
+                    # Instead we want to decay the weights in a manner that doesn't interact
+                    # with the m/v parameters. This is equivalent to adding the square
+                    # of the weights to the loss with plain (non-momentum) SGD.
+                    # Add weight decay at the end (fixed version)
+                    if group["weight_decay"] > 0.0:
+                        # add 3d term of update
+                        # p1 and p2 are always supposed to be the same so p1 or p2 it doesn't matter
+                        p1.add_(p1, alpha=(-group["lr"] * group["weight_decay"]))
+                        p2.add_(p2, alpha=(-group["lr"] * group["weight_decay"]))
+
+                for p in group["params"][135:] :
+                    # p is one tensor each time
+                    # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
+                    # (all params of 11 first parallel encoders)
+                    if p.grad is None:
+                        continue
+                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
+                    # both gradients are added before all step computations (crucial step for shared weights approach)
+                    grad = p.grad
+                    # you need to continue from here tomorrow and adapt the framework correctly
+                    if grad.is_sparse:
+                        raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
+
+
+                    state = self.state[p]
+
+                    # State initialization
+                    if len(state) == 0:
+                        state["step"] = 0
+                        # Exponential moving average of gradient values
+                        state["exp_avg"] = torch.zeros_like(p)
+                        # Exponential moving average of squared gradient values
+                        state["exp_avg_sq"] = torch.zeros_like(p)
+
+                    exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
+                    beta1, beta2 = group["betas"]
+
+                    state["step"] += 1
+
+                    # Decay the first and second moment running average coefficient
+                    # In-place operations to update the averages at the same time
+
+                    #v_t (see theory slide)
+                    exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+
+                    #s_t (see theory slide)
+                    exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+
+                    #denom for update of weight/bias
+                    denom = exp_avg_sq.sqrt().add_(group["eps"])
+
+                    #alpha
+                    step_size = group["lr"]
+                    if group["correct_bias"]:  # No bias correction for Bert
+                        bias_correction1 = 1.0 - beta1 ** state["step"]
+                        bias_correction2 = 1.0 - beta2 ** state["step"]
+                        step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
+                    # add 2nd term of update to weight (p here)
+                    p.addcdiv_(exp_avg, denom, value=-step_size)
+
+                    # Just adding the square of the weights to the loss function is *not*
+                    # the correct way of using L2 regularization/weight decay with Adam,
+                    # since that will interact with the m and v parameters in strange ways.
+                    #
+                    # Instead we want to decay the weights in a manner that doesn't interact
+                    # with the m/v parameters. This is equivalent to adding the square
+                    # of the weights to the loss with plain (non-momentum) SGD.
+                    # Add weight decay at the end (fixed version)
+                    if group["weight_decay"] > 0.0:
+                        # add 3d term of update
+                        p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
+            else:
+                for p1, p2 in zip(group["params"][0:111], group["params"][111:222]):
+                    # p is one tensor each time
+                    # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
+                    # (all params of 11 first parallel encoders)
+                    if (p1.grad is None) or (p2.grad is None):
+                        continue
+                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
+                    # both gradients are added before all step computations (crucial step for shared weights approach)
+                    grad = p1.grad + p2.grad
+
+                    if grad.is_sparse:
+                        raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
+
+                    # p1 and p2 are supposed to be the same at all times (their gradient not though),
+                    # so we can just use one for state operations.
+                    # Still shoudl we save both states (p1 and p2) ?
+
+                    state = self.state[p1]
+
+                    # State initialization
+                    if len(state) == 0:
+                        state["step"] = 0
+                        # Exponential moving average of gradient values
+                        state["exp_avg"] = torch.zeros_like(p1)
+                        # Exponential moving average of squared gradient values
+                        state["exp_avg_sq"] = torch.zeros_like(p1)
+
+                    exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
+                    beta1, beta2 = group["betas"]
+
+                    state["step"] += 1
+
+                    # Decay the first and second moment running average coefficient
+                    # In-place operations to update the averages at the same time
+
+
+                    exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+
+                    exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+
+                    denom = exp_avg_sq.sqrt().add_(group["eps"])
+
+                    step_size = group["lr"]
+
+                    if group["correct_bias"]:  # No bias correction for Bert
+                        bias_correction1 = 1.0 - beta1 ** state["step"]
+                        bias_correction2 = 1.0 - beta2 ** state["step"]
+                        step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
+
+                    p1.addcdiv_(exp_avg, denom, value=-step_size)
+                    p2.addcdiv_(exp_avg, denom, value=-step_size)
+
+                    if group["weight_decay"] > 0.0:
+                        p1.add_(p1, alpha=(-group["lr"] * group["weight_decay"]))
+                        p2.add_(p2, alpha=(-group["lr"] * group["weight_decay"]))
+
+                for p in group["params"][222:]:
+                    # p is one tensor each time
+                    # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
+                    # (all params of 11 first parallel encoders)
+                    if p.grad is None:
+                        continue
+                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
+                    # both gradients are added before all step computations (crucial step for shared weights approach)
+                    grad = p.grad
+                    # you need to continue from here tomorrow and adapt the framework correctly
+                    if grad.is_sparse:
+                        raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
+
+                    state = self.state[p]
+
+                    # State initialization
+                    if len(state) == 0:
+                        state["step"] = 0
+                        # Exponential moving average of gradient values
+                        state["exp_avg"] = torch.zeros_like(p)
+                        # Exponential moving average of squared gradient values
+                        state["exp_avg_sq"] = torch.zeros_like(p)
+
+                    exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
+                    beta1, beta2 = group["betas"]
+
+                    state["step"] += 1
+
+                    # Decay the first and second moment running average coefficient
+                    # In-place operations to update the averages at the same time
+
+                    # v_t (see theory slide)
+                    exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+
+                    # s_t (see theory slide)
+                    exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+
+                    # denom for update of weight/bias
+                    denom = exp_avg_sq.sqrt().add_(group["eps"])
+
+                    # alpha
+                    step_size = group["lr"]
+                    if group["correct_bias"]:  # No bias correction for Bert
+                        bias_correction1 = 1.0 - beta1 ** state["step"]
+                        bias_correction2 = 1.0 - beta2 ** state["step"]
+                        step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
+                    # add 2nd term of update to weight (p here)
+                    p.addcdiv_(exp_avg, denom, value=-step_size)
+
+                    # Just adding the square of the weights to the loss function is *not*
+                    # the correct way of using L2 regularization/weight decay with Adam,
+                    # since that will interact with the m and v parameters in strange ways.
+                    #
+                    # Instead we want to decay the weights in a manner that doesn't interact
+                    # with the m/v parameters. This is equivalent to adding the square
+                    # of the weights to the loss with plain (non-momentum) SGD.
+                    # Add weight decay at the end (fixed version)
+                    if group["weight_decay"] > 0.0:
+                        # add 3d term of update
+                        p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
+
+        return loss
 
 class Adafactor(Optimizer):
     """

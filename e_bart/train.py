@@ -16,7 +16,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from model.modeling_e_bart import BartForConditionalGeneration
 from ESeq2Seq_Trainer import ESeq2SeqTrainer
 
-import wandb
+#import wandb
 import json
 
 @dataclass
@@ -69,10 +69,10 @@ class CustomArguments:
 
 
 def main():
-    with open('model/config.json') as config_file:
-        config_wandb = json.load(config_file)
+    #with open('model/config.json') as config_file:
+    #config_wandb = json.load(config_file)
 
-    wandb.init(project="THESIS", config=config_wandb, name="EBART_V0")
+    #wandb.init(project="THESIS", config=config_wandb, name="EBART_V0")
 
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
@@ -168,10 +168,11 @@ def main():
             ]
 
         model_inputs["labels"] = labels["input_ids"]
-        model_inputs["guidance"] = guidance["input_ids"]
+        model_inputs["g"] = guidance["input_ids"]
         return model_inputs
 
     train_dataset = raw_datasets["train"]
+
     if args.max_train_samples is not None:
         max_train_samples = min(len(raw_datasets["train"]), args.max_train_samples)
         train_dataset = raw_datasets["train"].select(range(max_train_samples))

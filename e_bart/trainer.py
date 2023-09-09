@@ -1056,12 +1056,17 @@ class Trainer:
             decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
             decay_parameters = [name for name in decay_parameters if "bias" not in name]
             optimizer_grouped_parameters = [
+                # Here are the weights ? Only weights in this list, but still some weights (layernorm-related weights)
+                # are in next list !!! (318 weights)
+
+                # get the indices in the list and filter on them in AdamW optimizer
                 {
                     "params": [
                         p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)
                     ],
                     "weight_decay": self.args.weight_decay,
                 },
+                # Here are the biases ? (490 biases and weights)
                 {
                     "params": [
                         p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)
@@ -2729,6 +2734,8 @@ class Trainer:
 
         with self.compute_loss_context_manager():
             loss = self.compute_loss(model, inputs)
+            # I printed model and I have EBart like the exact architecture we need !!
+            # So compute_loss is taking the right model ? So why grad= None ?
 
         if self.args.n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
@@ -2755,8 +2762,9 @@ class Trainer:
             labels = None
         # forward call !!!
         # guidance separation here !!!
-        guidance = inputs.pop("guidance")
-        outputs = model(**inputs, g=guidance)
+        #guidance = inputs.pop("guidance")
+        outputs = model(**inputs)
+
         # Save past state if it exists
         # TODO: this needs to be fixed and made cleaner later.
         if self.args.past_index >= 0:

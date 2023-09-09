@@ -509,15 +509,15 @@ def _load_state_dict_into_model(model_to_load, state_dict, start_prefix):
             convert_file.write(json.dumps(file))
     '''
 
-    print("state_dict : ", state_dict)
+    #print("state_dict : ", state_dict)
+
     '''
     from .admin import convert
 
-    state_dict = convert(state_dict0)
+    state_dict = convert(state_dict)
     #print(state_dict)
 
     torch.save(state_dict, '/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin')
-
     '''
 
     old_keys = []

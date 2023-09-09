@@ -191,6 +191,7 @@ class BartAttention(nn.Module):
 
         # if key_value_states are provided this layer is used as a cross-attention layer
         # for the decoder
+
         is_cross_attention = key_value_states is not None
 
         bsz, tgt_len, _ = hidden_states.size()
@@ -450,6 +451,7 @@ class EBartDecoderLayer(nn.Module):
         hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
         hidden_states = residual + hidden_states
         hidden_states = self.self_attn_layer_norm(hidden_states)
+
         # Guidance Cross-Attention Block
         cross_attn_present_key_value = None
         g_cross_attn_weights = None
@@ -756,6 +758,8 @@ class BartEncoder(BartPretrainedModel):
         self.dropout = config.dropout
         self.layerdrop = config.encoder_layerdrop
 
+        self.encoder_heads = config.encoder_heads
+
         embed_dim = config.d_model
         self.padding_idx = config.pad_token_id
         self.max_source_positions = config.max_position_embeddings
@@ -771,6 +775,7 @@ class BartEncoder(BartPretrainedModel):
             embed_dim,
         )
         self.layers = nn.ModuleList([BartEncoderLayer(config) for _ in range(self.number_of_layers)])
+        self.head = nn.ModuleList([BartEncoderLayer(config) for _ in range(self.encoder_heads)])
         self.layernorm_embedding = nn.LayerNorm(embed_dim)
 
         self.gradient_checkpointing = False
@@ -854,6 +859,9 @@ class BartEncoder(BartPretrainedModel):
 
         hidden_states = inputs_embeds + embed_pos
         hidden_states = self.layernorm_embedding(hidden_states)
+
+        #ici ca change le resultat mais c'est pas plus mal
+        #Le g and x encoder stack vont un peu differer a cause du dropout
         hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
 
         # expand attention_mask
@@ -871,8 +879,49 @@ class BartEncoder(BartPretrainedModel):
                     f"The head_mask should be specified for {len(self.layers)} layers, but it is for"
                     f" {head_mask.size()[0]}."
                 )
-
+        #for loop of 11 first shared layers
         for idx, encoder_layer in enumerate(self.layers):
+            if output_hidden_states:
+                encoder_states = encoder_states + (hidden_states,)
+            # add LayerDrop (see https://arxiv.org/abs/1909.11556 for description)
+            to_drop = False
+            if self.training:
+                dropout_probability = torch.rand([])
+                if dropout_probability < self.layerdrop:  # skip the layer
+                    to_drop = True
+
+            if to_drop:
+                layer_outputs = (None, None)
+            else:
+                if self.gradient_checkpointing and self.training:
+
+                    def create_custom_forward(module):
+                        def custom_forward(*inputs):
+                            return module(*inputs, output_attentions)
+
+                        return custom_forward
+
+                    layer_outputs = torch.utils.checkpoint.checkpoint(
+                        create_custom_forward(encoder_layer),
+                        hidden_states,
+                        attention_mask,
+                        (head_mask[idx] if head_mask is not None else None),
+                    )
+                else:
+                    layer_outputs = encoder_layer(
+                        hidden_states,
+                        attention_mask,
+                        layer_head_mask=(head_mask[idx] if head_mask is not None else None),
+                        output_attentions=output_attentions,
+                    )
+
+                hidden_states = layer_outputs[0]
+
+            if output_attentions:
+                all_attentions = all_attentions + (layer_outputs[1],)
+
+        # for 1 last head (eventually, we could add more layers to head)
+        for idx, encoder_layer in enumerate(self.head):
             if output_hidden_states:
                 encoder_states = encoder_states + (hidden_states,)
             # add LayerDrop (see https://arxiv.org/abs/1909.11556 for description)
@@ -920,7 +969,6 @@ class BartEncoder(BartPretrainedModel):
         return BaseModelOutput(
             last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
         )
-
 
 class BartDecoder(BartPretrainedModel):
     """
@@ -1102,6 +1150,8 @@ class BartDecoder(BartPretrainedModel):
             # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
             encoder_attention_mask = _expand_mask(encoder_attention_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
 
+        # Should I not do the same for the guidance_hidden_states ???
+
         # embed positions
         positions = self.embed_positions(input, past_key_values_length)
         positions = positions.to(inputs_embeds.device)
@@ -1122,7 +1172,7 @@ class BartDecoder(BartPretrainedModel):
         all_hidden_states = () if output_hidden_states else None
         all_self_attns = () if output_attentions else None
         all_cross_attentions = () if (output_attentions and encoder_hidden_states is not None) else None
-        g_cross_attentions = () if (output_attentions and encoder_hidden_states is not None) else None
+        g_cross_attentions = () if (output_attentions and guidance_hidden_states is not None) else None
         next_decoder_cache = () if use_cache else None
 
         # check if head_mask/cross_attn_head_mask has a correct number of layers specified if desired
@@ -1168,6 +1218,7 @@ class BartDecoder(BartPretrainedModel):
                     hidden_states,
                     attention_mask=attention_mask,
                     encoder_hidden_states=encoder_hidden_states,
+                    guidance_hidden_states = guidance_hidden_states,
                     encoder_attention_mask=encoder_attention_mask,
                     layer_head_mask=(head_mask[idx] if head_mask is not None else None),
                     cross_attn_layer_head_mask=(
@@ -1225,10 +1276,6 @@ class EBartModel(BartPretrainedModel):
 
         self.encoder_x = BartEncoder(config, config.shared_encoder_layers, self.shared) # 11 layers for x (shared weights)
         self.encoder_g = BartEncoder(config, config.shared_encoder_layers, self.shared) # 11 layers for g (shared weights)
-
-        self.document_head = BartEncoder(config, config.encoder_heads, self.shared) # 1 separate layer for x
-        self.guidance_head = BartEncoder(config, config.encoder_heads, self.shared) # 1 separate layer for g
-
         self.decoder = BartDecoder(config, self.shared)
 
         # Initialize weights and apply final processing
@@ -1297,21 +1344,12 @@ class EBartModel(BartPretrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         if x_encoder_outputs is None:
-            x_encoder = self.encoder_x(
+
+            x_encoder_outputs = self.encoder_x(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 head_mask=head_mask,
                 inputs_embeds=inputs_embeds,
-                output_attentions=output_attentions,
-                output_hidden_states=output_hidden_states,
-                return_dict=return_dict,
-            )
-
-            x_encoder_outputs = self.document_head(
-                input_ids=None,
-                attention_mask=attention_mask,
-                head_mask=head_mask,
-                inputs_embeds=x_encoder.last_hidden_state,
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
@@ -1327,7 +1365,8 @@ class EBartModel(BartPretrainedModel):
             )
 
         if guidance is None:
-            g_encoder = self.encoder_g(
+
+            guidance = self.encoder_g(
                 input_ids=g,
                 attention_mask=attention_mask,
                 head_mask=head_mask,
@@ -1337,15 +1376,6 @@ class EBartModel(BartPretrainedModel):
                 return_dict=return_dict,
             )
 
-            guidance = self.guidance_head(
-                input_ids=None,
-                attention_mask=attention_mask,
-                head_mask=head_mask,
-                inputs_embeds=g_encoder.last_hidden_state,
-                output_attentions=output_attentions,
-                output_hidden_states=output_hidden_states,
-                return_dict=return_dict,
-            )
         # If the user passed a tuple for guidance, we wrap it in a BaseModelOutput when return_dict=True
         elif return_dict and not isinstance(guidance, BaseModelOutput):
 
@@ -1497,6 +1527,8 @@ class BartForConditionalGeneration(BartPretrainedModel):
             return_dict=return_dict,
         )
 
+        # c ici qu'il faut intervenir !!!!!
+
         lm_logits = self.lm_head(outputs[0])
         lm_logits = lm_logits + self.final_logits_bias.to(lm_logits.device)
 
@@ -1504,6 +1536,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
         if labels is not None:
             labels = labels.to(lm_logits.device)
             loss_fct = CrossEntropyLoss()
+            # Here, compare output of model versus golden summaries (labels)
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
 
         if not return_dict:
