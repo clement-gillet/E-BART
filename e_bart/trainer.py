@@ -1075,6 +1075,12 @@ class Trainer:
                 },
             ]
 
+            print("---------------------------------------")
+            [print(n) for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)]
+            print("---------------------------------------")
+            [print(n) for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)]
+
+
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
 
             if self.sharded_ddp == ShardedDDPOption.SIMPLE:

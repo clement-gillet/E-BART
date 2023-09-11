@@ -51,6 +51,8 @@ from .configuration_bart import BartConfig
 
 from .modeling_outputs import ESeq2SeqModelOutput, EBaseModelOutputWithPastAndCrossAttentions
 
+import wandb
+
 logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "facebook/bart-base"
@@ -1538,6 +1540,9 @@ class BartForConditionalGeneration(BartPretrainedModel):
             loss_fct = CrossEntropyLoss()
             # Here, compare output of model versus golden summaries (labels)
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
+            wandb.log({
+                "Training loss": masked_lm_loss
+            })
 
         if not return_dict:
             output = (lm_logits,) + outputs[1:]
