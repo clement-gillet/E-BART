@@ -222,12 +222,12 @@ if is_accelerate_available():
     from accelerate import Accelerator
     from accelerate.utils import DistributedDataParallelKwargs
 
-
 if TYPE_CHECKING:
     import optuna
 
-logger = logging.get_logger(__name__)
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Name of the files used for checkpointing
 TRAINING_ARGS_NAME = "training_args.bin"
@@ -354,7 +354,7 @@ class Trainer:
 
         # set the correct log level depending on the node
         log_level = args.get_process_log_level()
-        logging.set_verbosity(log_level)
+        #logging.set_verbosity(log_level)
 
         # force device and distributed setup init explicitly
         args._setup_devices
@@ -929,6 +929,77 @@ class Trainer:
             worker_init_fn=seed_worker,
         )
 
+    def _get_eval_sampler(self) -> Optional[Sampler]:
+        if self.eval_dataset is None or not has_length(self.eval_dataset):
+            return None
+
+        generator = None
+        if self.args.world_size <= 1:
+            generator = torch.Generator()
+            # for backwards compatibility, we generate a seed here (which is sampled from a generator seeded with
+            # `args.seed`) if data_seed isn't provided.
+            # Further on in this method, we default to `args.seed` instead.
+            if self.args.data_seed is None:
+                seed = int(torch.empty((), dtype=torch.int64).random_().item())
+            else:
+                seed = self.args.data_seed
+            generator.manual_seed(seed)
+
+        seed = self.args.data_seed if self.args.data_seed is not None else self.args.seed
+
+        # Build the sampler.
+        if self.args.group_by_length:
+            if is_datasets_available() and isinstance(self.eval_dataset, datasets.Dataset):
+                lengths = (
+                    self.eval_dataset[self.args.length_column_name]
+                    if self.args.length_column_name in self.eval_dataset.column_names
+                    else None
+                )
+            else:
+                lengths = None
+            model_input_name = self.tokenizer.model_input_names[0] if self.tokenizer is not None else None
+            if self.args.world_size <= 1:
+                return LengthGroupedSampler(
+                    self.args.train_batch_size * self.args.gradient_accumulation_steps,
+                    dataset=self.eval_dataset,
+                    lengths=lengths,
+                    model_input_name=model_input_name,
+                    generator=generator,
+                )
+            else:
+                return DistributedLengthGroupedSampler(
+                    self.args.train_batch_size * self.args.gradient_accumulation_steps,
+                    dataset=self.eval_dataset,
+                    num_replicas=self.args.world_size,
+                    rank=self.args.process_index,
+                    lengths=lengths,
+                    model_input_name=model_input_name,
+                    seed=seed,
+                )
+
+        else:
+            if self.args.world_size <= 1:
+                return RandomSampler(self.eval_dataset, generator=generator)
+            elif (
+                self.args.parallel_mode in [ParallelMode.TPU, ParallelMode.SAGEMAKER_MODEL_PARALLEL]
+                and not self.args.dataloader_drop_last
+            ):
+                # Use a loop for TPUs when drop_last is False to have all batches have the same size.
+                return DistributedSamplerWithLoop(
+                    self.eval_dataset,
+                    batch_size=self.args.per_device_train_batch_size,
+                    num_replicas=self.args.world_size,
+                    rank=self.args.process_index,
+                    seed=seed,
+                )
+            else:
+                return DistributedSampler(
+                    self.train_dataset,
+                    num_replicas=self.args.world_size,
+                    rank=self.args.process_index,
+                    seed=seed,
+                )
+
     def get_eval_dataloader(self, eval_dataset: Optional[Dataset] = None) -> DataLoader:
         """
         Returns the evaluation [`~torch.utils.data.DataLoader`].
@@ -967,7 +1038,7 @@ class Trainer:
                 pin_memory=self.args.dataloader_pin_memory,
             )
 
-        eval_sampler = self._get_eval_sampler(eval_dataset)
+        eval_sampler = self._get_eval_sampler()
 
         return DataLoader(
             eval_dataset,
@@ -1014,7 +1085,7 @@ class Trainer:
                 pin_memory=self.args.dataloader_pin_memory,
             )
 
-        test_sampler = self._get_eval_sampler(test_dataset)
+        test_sampler = self._get_eval_sampler()
 
         # We use the same batch_size as for eval.
         return DataLoader(
@@ -1074,12 +1145,6 @@ class Trainer:
                     "weight_decay": 0.0,
                 },
             ]
-
-            print("---------------------------------------")
-            [print(n) for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)]
-            print("---------------------------------------")
-            [print(n) for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)]
-
 
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
 
@@ -3118,6 +3183,7 @@ class Trainer:
         output = eval_loop(
             test_dataloader, description="Prediction", ignore_keys=ignore_keys, metric_key_prefix=metric_key_prefix
         )
+        #-----------------------------bug ici au dessus--------------------------------------------------------
         total_batch_size = self.args.eval_batch_size * self.args.world_size
         if f"{metric_key_prefix}_jit_compilation_time" in output.metrics:
             start_time += output.metrics[f"{metric_key_prefix}_jit_compilation_time"]
@@ -3232,6 +3298,7 @@ class Trainer:
 
             # Prediction step
             loss, logits, labels = self.prediction_step(model, inputs, prediction_loss_only, ignore_keys=ignore_keys)
+            #--------bug ici au dessus----------------------
             inputs_decode = self._prepare_input(inputs["input_ids"]) if args.include_inputs_for_metrics else None
 
             if is_torch_tpu_available():
@@ -3270,6 +3337,7 @@ class Trainer:
                 if preds_host is not None:
                     logits = nested_numpify(preds_host)
                     all_preds = logits if all_preds is None else nested_concat(all_preds, logits, padding_index=-100)
+
                 if inputs_host is not None:
                     inputs_decode = nested_numpify(inputs_host)
                     all_inputs = (
@@ -3420,28 +3488,28 @@ class Trainer:
         ignore_keys: Optional[List[str]] = None,
     ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
         """
-        Perform an evaluation step on `model` using `inputs`.
+                Perform an evaluation step on `model` using `inputs`.
 
-        Subclass and override to inject custom behavior.
+                Subclass and override to inject custom behavior.
 
-        Args:
-            model (`nn.Module`):
-                The model to evaluate.
-            inputs (`Dict[str, Union[torch.Tensor, Any]]`):
-                The inputs and targets of the model.
+                Args:
+                    model (`nn.Module`):
+                        The model to evaluate.
+                    inputs (`Dict[str, Union[torch.Tensor, Any]]`):
+                        The inputs and targets of the model.
 
-                The dictionary will be unpacked before being fed to the model. Most models expect the targets under the
-                argument `labels`. Check your model's documentation for all accepted arguments.
-            prediction_loss_only (`bool`):
-                Whether or not to return the loss only.
-            ignore_keys (`List[str]`, *optional*):
-                A list of keys in the output of your model (if it is a dictionary) that should be ignored when
-                gathering predictions.
+                        The dictionary will be unpacked before being fed to the model. Most models expect the targets under the
+                        argument `labels`. Check your model's documentation for all accepted arguments.
+                    prediction_loss_only (`bool`):
+                        Whether or not to return the loss only.
+                    ignore_keys (`List[str]`, *optional*):
+                        A list of keys in the output of your model (if it is a dictionary) that should be ignored when
+                        gathering predictions.
 
-        Return:
-            Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]: A tuple with the loss,
-            logits and labels (each being optional).
-        """
+                Return:
+                    Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]: A tuple with the loss,
+                    logits and labels (each being optional).
+                """
         has_labels = False if len(self.label_names) == 0 else all(inputs.get(k) is not None for k in self.label_names)
         # For CLIP-like models capable of returning loss values.
         # If `return_loss` is not specified or being `None` in `inputs`, we check if the default value of `return_loss`

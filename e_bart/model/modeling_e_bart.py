@@ -51,8 +51,6 @@ from .configuration_bart import BartConfig
 
 from .modeling_outputs import ESeq2SeqModelOutput, EBaseModelOutputWithPastAndCrossAttentions
 
-import wandb
-
 logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "facebook/bart-base"
@@ -1291,8 +1289,11 @@ class EBartModel(BartPretrainedModel):
         self.encoder.embed_tokens = self.shared
         self.decoder.embed_tokens = self.shared
 
-    def get_encoder(self):
-        return self.encoder
+    def get_encoder_x(self):
+        return self.encoder_x
+
+    def get_encoder_g(self):
+        return self.encoder_g
 
     def get_decoder(self):
         return self.decoder
@@ -1441,7 +1442,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
         self.post_init()
 
     def get_encoder(self):
-        return self.model.get_encoder()
+        return self.model.get_encoder_x(), self.model.get_encoder_g()
 
     def get_decoder(self):
         return self.model.get_decoder()
@@ -1540,9 +1541,6 @@ class BartForConditionalGeneration(BartPretrainedModel):
             loss_fct = CrossEntropyLoss()
             # Here, compare output of model versus golden summaries (labels)
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
-            wandb.log({
-                "Training loss": masked_lm_loss
-            })
 
         if not return_dict:
             output = (lm_logits,) + outputs[1:]
@@ -1570,7 +1568,8 @@ class BartForConditionalGeneration(BartPretrainedModel):
         decoder_head_mask=None,
         cross_attn_head_mask=None,
         use_cache=None,
-        encoder_outputs=None,
+        x_encoder_outputs=None,
+        guidance=None,
         **kwargs,
     ):
         # cut decoder_input_ids if past_key_values is used
@@ -1579,7 +1578,8 @@ class BartForConditionalGeneration(BartPretrainedModel):
 
         return {
             "input_ids": None,  # encoder_outputs is defined. input_ids not needed
-            "encoder_outputs": encoder_outputs,
+            "x_encoder_outputs": x_encoder_outputs,
+            "guidance": guidance,
             "past_key_values": past_key_values,
             "decoder_input_ids": decoder_input_ids,
             "attention_mask": attention_mask,

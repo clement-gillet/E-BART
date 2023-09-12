@@ -634,7 +634,7 @@ class AdamW(Optimizer):
                         # add 3d term of update
                         p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
             else:
-                for p1, p2 in zip(group["params"][0:111], group["params"][123:234]):
+                for p1, p2 in zip(group["params"][0:111], group["params"][122:234]):
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)
@@ -690,7 +690,7 @@ class AdamW(Optimizer):
                         p1.add_(p1, alpha=(-group["lr"] * group["weight_decay"]))
                         p2.add_(p2, alpha=(-group["lr"] * group["weight_decay"]))
 
-                for p in group["params"][111:123] + group["params"][234:]:
+                for p in group["params"][111:122] + group["params"][234:]:
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)

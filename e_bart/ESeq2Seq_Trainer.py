@@ -222,28 +222,31 @@ class ESeq2SeqTrainer(Trainer):
         inputs: Dict[str, Union[torch.Tensor, Any]],
         prediction_loss_only: bool,
         ignore_keys: Optional[List[str]] = None,
+        **gen_kwargs,
     ) -> Tuple[Optional[float], Optional[torch.Tensor], Optional[torch.Tensor]]:
         """
-        Perform an evaluation step on `model` using `inputs`.
+               Perform an evaluation step on `model` using `inputs`.
 
-        Subclass and override to inject custom behavior.
+               Subclass and override to inject custom behavior.
 
-        Args:
-            model (`nn.Module`):
-                The model to evaluate.
-            inputs (`Dict[str, Union[torch.Tensor, Any]]`):
-                The inputs and targets of the model.
+               Args:
+                   model (`nn.Module`):
+                       The model to evaluate.
+                   inputs (`Dict[str, Union[torch.Tensor, Any]]`):
+                       The inputs and targets of the model.
 
-                The dictionary will be unpacked before being fed to the model. Most models expect the targets under the
-                argument `labels`. Check your model's documentation for all accepted arguments.
-            prediction_loss_only (`bool`):
-                Whether or not to return the loss only.
+                       The dictionary will be unpacked before being fed to the model. Most models expect the targets under the
+                       argument `labels`. Check your model's documentation for all accepted arguments.
+                   prediction_loss_only (`bool`):
+                       Whether or not to return the loss only.
+                   gen_kwargs:
+                       Additional `generate` specific kwargs.
 
-        Return:
-            Tuple[Optional[float], Optional[torch.Tensor], Optional[torch.Tensor]]: A tuple with the loss, logits and
-            labels (each being optional).
-        """
-
+               Return:
+                   Tuple[Optional[float], Optional[torch.Tensor], Optional[torch.Tensor]]: A tuple with the loss, logits and
+                   labels (each being optional).
+               """
+        self.args.predict_with_generate = True
         if not self.args.predict_with_generate or prediction_loss_only:
             return super().prediction_step(
                 model, inputs, prediction_loss_only=prediction_loss_only, ignore_keys=ignore_keys
@@ -254,13 +257,14 @@ class ESeq2SeqTrainer(Trainer):
 
         # XXX: adapt synced_gpus for fairscale as well
         # Priority (handled in generate):
-        # gen_kwargs > model.generation_config > default GenerationConfig()
-        gen_kwargs = self._gen_kwargs.copy()
-        if gen_kwargs.get("max_length") is None and gen_kwargs.get("max_new_tokens") is None:
-            gen_kwargs["max_length"] = self.model.config.max_length
-        gen_kwargs["num_beams"] = (
-            gen_kwargs["num_beams"] if gen_kwargs.get("num_beams") is not None else self.model.config.num_beams
-        )
+        # non-`None` gen_kwargs > model.generation_config > default GenerationConfig()
+        if len(gen_kwargs) == 0 and hasattr(self, "_gen_kwargs"):
+            gen_kwargs = self._gen_kwargs.copy()
+        if "num_beams" in gen_kwargs and gen_kwargs["num_beams"] is None:
+            gen_kwargs.pop("num_beams")
+        if "max_length" in gen_kwargs and gen_kwargs["max_length"] is None:
+            gen_kwargs.pop("max_length")
+
         default_synced_gpus = True if is_deepspeed_zero3_enabled() else False
         gen_kwargs["synced_gpus"] = (
             gen_kwargs["synced_gpus"] if gen_kwargs.get("synced_gpus") is not None else default_synced_gpus
@@ -269,9 +273,9 @@ class ESeq2SeqTrainer(Trainer):
         # If the `decoder_input_ids` was created from `labels`, evict the former, so that the model can freely generate
         # (otherwise, it would continue generating from the padded `decoder_input_ids`)
         if (
-            "labels" in inputs
-            and "decoder_input_ids" in inputs
-            and inputs["labels"].shape == inputs["decoder_input_ids"].shape
+                "labels" in inputs
+                and "decoder_input_ids" in inputs
+                and inputs["labels"].shape == inputs["decoder_input_ids"].shape
         ):
             inputs = {k: v for k, v in inputs.items() if k != "decoder_input_ids"}
         generated_tokens = self.model.generate(**inputs, **gen_kwargs)
