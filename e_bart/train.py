@@ -88,8 +88,9 @@ def main():
 
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
-    TrainingArguments.evaluation_strategy = "steps"
-    TrainingArguments.eval_steps = 1000
+    training_args.evaluation_strategy = "steps"
+    training_args.eval_steps = 1000
+    training_args.output_dir = "/netscratch/gillet/projects/E-BART"
 
     # Setup logging
     logging.basicConfig(level=logging.INFO)
