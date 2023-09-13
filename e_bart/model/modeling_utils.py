@@ -74,7 +74,7 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 from transformers.utils.hub import convert_file_size_to_int, get_checkpoint_shard_files
-from transformers.utils.import_utils import ENV_VARS_TRUE_VALUES, importlib_metadata, is_sagemaker_mp_enabled
+from transformers.utils.import_utils import *
 from transformers.utils.quantization_config import BitsAndBytesConfig
 from transformers.utils.versions import require_version_core
 
