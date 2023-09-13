@@ -90,7 +90,7 @@ def main():
     args, training_args = parser.parse_args_into_dataclasses()
     training_args.evaluation_strategy = "steps"
     training_args.eval_steps = 1000
-    training_args.output_dir = "/netscratch/gillet/projects/E-BART"
+    training_args.output_dir = "/netscratch/gillet/projects/E-BART/output"
 
     # Setup logging
     logging.basicConfig(level=logging.INFO)
