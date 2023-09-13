@@ -1347,7 +1347,6 @@ class EBartModel(BartPretrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         if x_encoder_outputs is None:
-
             x_encoder_outputs = self.encoder_x(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
@@ -1368,7 +1367,6 @@ class EBartModel(BartPretrainedModel):
             )
 
         if guidance is None:
-
             guidance = self.encoder_g(
                 input_ids=g,
                 attention_mask=attention_mask,

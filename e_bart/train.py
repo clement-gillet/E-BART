@@ -89,7 +89,7 @@ def main():
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
     TrainingArguments.evaluation_strategy = "steps"
-    TrainingArguments.eval_steps = 100
+    TrainingArguments.eval_steps = 1000
 
     # Setup logging
     logging.basicConfig(level=logging.INFO)
@@ -276,7 +276,8 @@ def main():
 
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-
+        print("Golden Summary : ", decoded_labels[4])
+        print("Inference : ", decoded_preds[4])
         result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
         result = {k: round(v * 100, 4) for k, v in result.items()}
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
