@@ -10,9 +10,10 @@ from transformers import (
     AutoConfig,
     AutoTokenizer,
     DataCollatorForSeq2Seq,
-    Seq2SeqTrainingArguments,
     TrainingArguments
 )
+
+from training_args_seq2seq import Seq2SeqTrainingArguments
 
 from transformers.trainer_utils import get_last_checkpoint
 
