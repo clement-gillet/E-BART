@@ -37,7 +37,7 @@ from transformers.activations import get_activation
 from transformers.configuration_utils import PretrainedConfig
 from transformers.deepspeed import deepspeed_config, is_deepspeed_zero3_enabled
 from transformers.dynamic_module_utils import custom_object_save
-from e_bart.generation import GenerationConfig, GenerationMixin
+from ..generation import GenerationConfig, GenerationMixin
 from transformers.pytorch_utils import (  # noqa: F401
     Conv1D,
     apply_chunking_to_forward,
