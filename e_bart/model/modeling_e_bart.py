@@ -24,6 +24,7 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.utils.checkpoint
+import wandb
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
@@ -1538,7 +1539,12 @@ class BartForConditionalGeneration(BartPretrainedModel):
             labels = labels.to(lm_logits.device)
             loss_fct = CrossEntropyLoss()
             # Here, compare output of model versus golden summaries (labels)
+            print("LABELS : ", labels.view(-1)[0])
+            print("GENERATED : ", lm_logits.view(-1, self.config.vocab_size)[0])
+
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
+
+            wandb.log({"train_loss":masked_lm_loss})
 
         if not return_dict:
             output = (lm_logits,) + outputs[1:]
