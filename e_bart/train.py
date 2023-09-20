@@ -76,6 +76,16 @@ class CustomArguments:
         default=None, metadata={"help": "Provide a csv or json file for the training set"}
     )
 
+    max_target_length: int = field(
+        default=128,
+        metadata={
+            "help": (
+                "The maximum total sequence length for target text after tokenization. Sequences longer "
+                "than this will be truncated, sequences shorter will be padded."
+            )
+        },
+    )
+
     preprocessing_num_workers: int = field(
         default=None, metadata={"help": "The number of processes to use for the preprocessing."}
     )
@@ -88,12 +98,14 @@ def main():
 
     wandb.init(project="THESIS", config=config_wandb, name="E_Bart_v0")
 
-    parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
+    parser = HfArgumentParser((CustomArguments, Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
     training_args.evaluation_strategy = "steps"
     training_args.eval_steps = 1000
     #training_args.output_dir = "/netscratch/gillet/projects/E-BART/output"
     training_args.output_dir = "/Users/clementgillet/Desktop/ANALYSE/faudra suppress apres debug"
+
+    max_target_length = args.max_target_length
 
     # Setup logging
     logging.basicConfig(level=logging.INFO)
@@ -155,7 +167,6 @@ def main():
     guidance_column = "guidance"
 
     max_source_length = 1024
-    max_target_length = 240
     padding = False
 
     # The following is a nested funcion in main() that removes blanks in the dataset and tokenizes the input and the target
@@ -191,7 +202,6 @@ def main():
 
         model_inputs["labels"] = labels["input_ids"]
         model_inputs["g"] = guidance["input_ids"]
-        print("groooo")
         return model_inputs
 
     #TRAIN
@@ -282,13 +292,19 @@ def main():
 
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        #print("Golden Summary : ", decoded_labels[4])
-        #print("Inference : ", decoded_preds[4])
+        print("Golden Summary : ", decoded_labels[0])
+        print("Inference : ", decoded_preds[0])
         result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
         result = {k: round(v * 100, 4) for k, v in result.items()}
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
         result["gen_len"] = np.mean(prediction_lens)
         return result
+
+    training_args.generation_max_length = (
+        training_args.generation_max_length
+        if training_args.generation_max_length is not None
+        else max_target_length
+    )
 
     # Initialize our Trainer
     trainer = ESeq2SeqTrainer(
