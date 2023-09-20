@@ -918,16 +918,16 @@ class Trainer:
 
         train_sampler = self._get_train_sampler()
 
-        return DataLoader(
+        return self.accelerator.prepare(DataLoader(
             train_dataset,
-            batch_size=self._train_batch_size,
+            batch_size=self.args.train_batch_size,
             sampler=train_sampler,
             collate_fn=data_collator,
             drop_last=self.args.dataloader_drop_last,
             num_workers=self.args.dataloader_num_workers,
             pin_memory=self.args.dataloader_pin_memory,
             worker_init_fn=seed_worker,
-        )
+        ))
 
     def _get_eval_sampler(self) -> Optional[Sampler]:
         if self.eval_dataset is None or not has_length(self.eval_dataset):
@@ -1935,13 +1935,13 @@ class Trainer:
                 parallel_loader = pl.ParallelLoader(train_dataloader, [args.device]).per_device_loader(args.device)
                 epoch_iterator = parallel_loader
             else:
-                epoch_iterator1 = train_dataloader
+                epoch_iterator = train_dataloader
             # Reset the past mems state at the beginning of each epoch if necessary.
             if args.past_index >= 0:
                 self._past = None
 
             steps_in_epoch = (
-                len(epoch_iterator1)
+                len(epoch_iterator)
                 if len_dataloader is not None
                 else args.max_steps * args.gradient_accumulation_steps
             )
@@ -1953,13 +1953,13 @@ class Trainer:
             rng_to_sync = False
             steps_skipped = 0
             if skip_first_batches is not None and steps_trained_in_current_epoch > 0:
-                epoch_iterator1 = skip_first_batches(epoch_iterator1, steps_trained_in_current_epoch)
+                epoch_iterator = skip_first_batches(epoch_iterator, steps_trained_in_current_epoch)
                 steps_skipped = steps_trained_in_current_epoch
                 steps_trained_in_current_epoch = 0
                 rng_to_sync = True
 
             step = -1
-            for step, x_inputs in enumerate(epoch_iterator1):
+            for step, inputs in enumerate(epoch_iterator):
                 total_batched_samples += 1
                 if rng_to_sync:
                     self._load_rng_state(resume_from_checkpoint)
@@ -1981,7 +1981,7 @@ class Trainer:
                     self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
 
                 with self.accelerator.accumulate(model):
-                    tr_loss_step = self.training_step(model, x_inputs)
+                    tr_loss_step = self.training_step(model, inputs)
 
                 if (
                     args.logging_nan_inf_filter
@@ -1994,7 +1994,7 @@ class Trainer:
                     tr_loss += tr_loss_step
 
                 # what is this ????
-                self.current_flos += float(self.floating_point_ops(x_inputs))
+                self.current_flos += float(self.floating_point_ops(inputs))
 
                 # should this be under the accumulate context manager?
                 # the `or` condition of `steps_in_epoch <= args.gradient_accumulation_steps` is not covered

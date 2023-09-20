@@ -1405,7 +1405,7 @@ class EBartModel(BartPretrainedModel):
         )
 
         if not return_dict:
-            return decoder_outputs + x_encoder_outputs + guidance # why is this for ?
+            return decoder_outputs + x_encoder_outputs + guidance # what is this for ?
 
         return ESeq2SeqModelOutput(
             last_hidden_state=decoder_outputs.last_hidden_state,
@@ -1539,8 +1539,8 @@ class BartForConditionalGeneration(BartPretrainedModel):
             labels = labels.to(lm_logits.device)
             loss_fct = CrossEntropyLoss()
             # Here, compare output of model versus golden summaries (labels)
-            print("LABELS : ", labels.view(-1)[0])
-            print("GENERATED : ", lm_logits.view(-1, self.config.vocab_size)[0])
+            #print("LABELS : ", labels.view(-1))
+            #print("GENERATED : ", lm_logits.view(-1, self.config.vocab_size))
 
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
 

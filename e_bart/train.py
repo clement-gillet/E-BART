@@ -9,9 +9,10 @@ from transformers import (
     set_seed,
     AutoConfig,
     AutoTokenizer,
-    DataCollatorForSeq2Seq,
     TrainingArguments
 )
+
+from data.data_collator import DataCollatorForESeq2Seq
 
 from training_args_seq2seq import Seq2SeqTrainingArguments
 
@@ -90,8 +91,9 @@ def main():
     parser = HfArgumentParser((CustomArguments,Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
     training_args.evaluation_strategy = "steps"
-    training_args.eval_steps = 50000
-    training_args.output_dir = "/netscratch/gillet/projects/E-BART/output"
+    training_args.eval_steps = 1000
+    #training_args.output_dir = "/netscratch/gillet/projects/E-BART/output"
+    training_args.output_dir = "/Users/clementgillet/Desktop/ANALYSE/faudra suppress apres debug"
 
     # Setup logging
     logging.basicConfig(level=logging.INFO)
@@ -142,10 +144,11 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    pretrained_weights = "/netscratch/gillet/projects/model.bin"
+    #pretrained_weights = "/netscratch/gillet/projects/model.bin"
+    pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin"
     model = BartForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=pretrained_weights, config=my_config)
 
-    print(model)
+    #print(model)
 
     text_column = "document"
     summary_column = "summary"
@@ -153,12 +156,12 @@ def main():
 
     max_source_length = 1024
     max_target_length = 240
-    padding = "max_length"
+    padding = False
 
     # The following is a nested funcion in main() that removes blanks in the dataset and tokenizes the input and the target
     # Return :
 
-    def preprocess_function(examples):
+    def preprocess(examples):
 
         # remove pairs where at least one record is None
 
@@ -181,13 +184,14 @@ def main():
 
         # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
         # padding in the loss.
-        if padding == "max_length":
+        if padding == "max_length" :
             labels["input_ids"] = [
                 [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
             ]
 
         model_inputs["labels"] = labels["input_ids"]
         model_inputs["g"] = guidance["input_ids"]
+        print("groooo")
         return model_inputs
 
     #TRAIN
@@ -207,7 +211,7 @@ def main():
 
     with training_args.main_process_first(desc="train dataset map pre-processing"):
         train_dataset = train_dataset.map(
-            preprocess_function,
+            preprocess,
             batched=True,
             num_proc=args.preprocessing_num_workers,
             remove_columns=train_dataset.column_names,
@@ -222,7 +226,7 @@ def main():
 
     with training_args.main_process_first(desc="validation dataset map pre-processing"):
         eval_dataset = eval_dataset.map(
-            preprocess_function,
+            preprocess,
             batched=True,
             num_proc=args.preprocessing_num_workers,
             remove_columns=raw_datasets["validation"].column_names,
@@ -238,7 +242,7 @@ def main():
 
     with training_args.main_process_first(desc="prediction dataset map pre-processing"):
         predict_dataset = predict_dataset.map(
-            preprocess_function,
+            preprocess,
             batched=True,
             num_proc=args.preprocessing_num_workers,
             remove_columns=raw_datasets["test"].column_names,
@@ -247,7 +251,7 @@ def main():
 
     # Data collator
     label_pad_token_id = -100
-    data_collator = DataCollatorForSeq2Seq(
+    data_collator = DataCollatorForESeq2Seq(
         tokenizer=tokenizer,
         model=model,
         label_pad_token_id=label_pad_token_id,
@@ -278,8 +282,8 @@ def main():
 
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-        print("Golden Summary : ", decoded_labels[4])
-        print("Inference : ", decoded_preds[4])
+        #print("Golden Summary : ", decoded_labels[4])
+        #print("Inference : ", decoded_preds[4])
         result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
         result = {k: round(v * 100, 4) for k, v in result.items()}
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
