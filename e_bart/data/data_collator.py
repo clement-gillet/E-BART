@@ -21,7 +21,7 @@ from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
 import numpy as np
 
 from transformers.models.bert import BertTokenizer, BertTokenizerFast
-from e_bart.Etokenization_utils_base import PreTrainedTokenizerBase
+from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 from transformers.utils import PaddingStrategy
 
 
