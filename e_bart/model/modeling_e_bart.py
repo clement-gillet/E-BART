@@ -1215,6 +1215,10 @@ class BartDecoder(BartPretrainedModel):
                     None,
                 )
             else:
+                print("---------------------------------------------------------------------")
+                print("TRAIN X-HIDDEN IN_DEC : ", encoder_hidden_states)
+                print("TRAIN G-HIDDEN IN_DEC : ", guidance_hidden_states)
+                print("---------------------------------------------------------------------")
                 layer_outputs = decoder_layer(
                     hidden_states,
                     attention_mask=attention_mask,
@@ -1386,6 +1390,11 @@ class EBartModel(BartPretrainedModel):
                 hidden_states=guidance[1] if len(guidance) > 1 else None,
                 attentions=guidance[2] if len(guidance) > 2 else None,
             )
+        print("---------------------------------------------------------------------")
+        print("TRAIN X-HIDDEN OUT : ", x_encoder_outputs)
+        print("TRAIN G-HIDDEN OUT : ", guidance)
+        print("Y_in : ", decoder_input_ids)
+        print("---------------------------------------------------------------------")
 
         # decoder outputs consists of (dec_features, past_key_value, dec_hidden, dec_attn)
         decoder_outputs = self.decoder(
@@ -1529,10 +1538,18 @@ class BartForConditionalGeneration(BartPretrainedModel):
             return_dict=return_dict,
         )
 
-        # c ici qu'il faut intervenir !!!!!
+        print("-------------------------------------------------------------")
+        print("OUTPUT DECOD : ", outputs[0])
+        print("-------------------------------------------------------------")
 
         lm_logits = self.lm_head(outputs[0])
         lm_logits = lm_logits + self.final_logits_bias.to(lm_logits.device)
+        print("-------------------------------------------------------------")
+        print("LM LOGITS : ", lm_logits)
+        print("-------------------------------------------------------------")
+        print("-------------------------------------------------------------")
+        print("TOKEN : ", lm_logits.view(-1, self.config.vocab_size))
+        print("-------------------------------------------------------------")
 
         masked_lm_loss = None
         if labels is not None:

@@ -361,7 +361,7 @@ class GenerationConfig(PushToHubMixin):
         output_config_file = os.path.join(save_directory, config_file_name)
 
         self.to_json_file(output_config_file, use_diff=True)
-        logger.info(f"Configuration saved in {output_config_file}")
+        #logger.info(f"Configuration saved in {output_config_file}")
 
         if push_to_hub:
             self._upload_modified_files(

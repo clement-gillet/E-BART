@@ -2834,6 +2834,11 @@ class Trainer:
         # forward call !!!
         # guidance separation here !!!
         #guidance = inputs.pop("guidance")
+
+        print("------------------------------------------------------------------------------")
+        print("TRAIN INPUTS : ", inputs)
+        print("------------------------------------------------------------------------------")
+
         outputs = model(**inputs)
 
         # Save past state if it exists
