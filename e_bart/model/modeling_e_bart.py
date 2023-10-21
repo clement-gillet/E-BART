@@ -1184,6 +1184,12 @@ class BartDecoder(BartPretrainedModel):
                         f"The `{mask_name}` should be specified for {len(self.layers)} layers, but it is for"
                         f" {head_mask.size()[0]}."
                     )
+        '''
+        print("---------------------------------------------------------------------")
+        print("TRAIN X-HIDDEN IN_DEC : ", encoder_hidden_states.shape)
+        print("TRAIN G-HIDDEN IN_DEC : ", guidance_hidden_states.shape)
+        print("---------------------------------------------------------------------")
+        '''
 
         for idx, decoder_layer in enumerate(self.layers):
             # add LayerDrop (see https://arxiv.org/abs/1909.11556 for description)
@@ -1215,10 +1221,6 @@ class BartDecoder(BartPretrainedModel):
                     None,
                 )
             else:
-                print("---------------------------------------------------------------------")
-                print("TRAIN X-HIDDEN IN_DEC : ", encoder_hidden_states)
-                print("TRAIN G-HIDDEN IN_DEC : ", guidance_hidden_states)
-                print("---------------------------------------------------------------------")
                 layer_outputs = decoder_layer(
                     hidden_states,
                     attention_mask=attention_mask,
@@ -1390,12 +1392,13 @@ class EBartModel(BartPretrainedModel):
                 hidden_states=guidance[1] if len(guidance) > 1 else None,
                 attentions=guidance[2] if len(guidance) > 2 else None,
             )
+        '''
         print("---------------------------------------------------------------------")
         print("TRAIN X-HIDDEN OUT : ", x_encoder_outputs)
         print("TRAIN G-HIDDEN OUT : ", guidance)
         print("Y_in : ", decoder_input_ids)
         print("---------------------------------------------------------------------")
-
+        '''
         # decoder outputs consists of (dec_features, past_key_value, dec_hidden, dec_attn)
         decoder_outputs = self.decoder(
             input_ids=decoder_input_ids,
@@ -1537,27 +1540,24 @@ class BartForConditionalGeneration(BartPretrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
-
+        '''
         print("-------------------------------------------------------------")
-        print("OUTPUT DECOD : ", outputs[0])
+        print("OUTPUT DECOD : ", outputs[0].shape)
+        print(outputs[0])
         print("-------------------------------------------------------------")
-
+        '''
         lm_logits = self.lm_head(outputs[0])
         lm_logits = lm_logits + self.final_logits_bias.to(lm_logits.device)
+        '''
         print("-------------------------------------------------------------")
-        print("LM LOGITS : ", lm_logits)
+        print("LM LOGITS : ", lm_logits.shape)
+        print(lm_logits)
         print("-------------------------------------------------------------")
-        print("-------------------------------------------------------------")
-        print("TOKEN : ", lm_logits.view(-1, self.config.vocab_size))
-        print("-------------------------------------------------------------")
-
+        '''
         masked_lm_loss = None
         if labels is not None:
             labels = labels.to(lm_logits.device)
             loss_fct = CrossEntropyLoss()
-            # Here, compare output of model versus golden summaries (labels)
-            #print("LABELS : ", labels.view(-1))
-            #print("GENERATED : ", lm_logits.view(-1, self.config.vocab_size))
 
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), labels.view(-1))
 

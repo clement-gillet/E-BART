@@ -257,7 +257,7 @@ class Trainer:
             The arguments to tweak for training. Will default to a basic instance of [`TrainingArguments`] with the
             `output_dir` set to a directory named *tmp_trainer* in the current directory if not provided.
         data_collator (`DataCollator`, *optional*):
-            The function to use to form a batch from a list of elements of `train_dataset` or `eval_dataset`. Will
+            The function to use to form a batch from a list of elements of `train_dTRAIN HIDDENataset` or `eval_dataset`. Will
             default to [`default_data_collator`] if no `tokenizer` is provided, an instance of
             [`DataCollatorWithPadding`] otherwise.
         train_dataset (`torch.utils.data.Dataset` or `torch.utils.data.IterableDataset`, *optional*):
@@ -2834,11 +2834,11 @@ class Trainer:
         # forward call !!!
         # guidance separation here !!!
         #guidance = inputs.pop("guidance")
-
+        '''
         print("------------------------------------------------------------------------------")
         print("TRAIN INPUTS : ", inputs)
         print("------------------------------------------------------------------------------")
-
+        '''
         outputs = model(**inputs)
 
         # Save past state if it exists
