@@ -102,7 +102,6 @@ def main():
     args, training_args = parser.parse_args_into_dataclasses()
     training_args.evaluation_strategy = "steps"
     training_args.eval_steps = 1000
-    training_args.output_dir = "/netscratch/gillet/projects/E-BART/output"
     #training_args.output_dir = "/Users/clementgillet/Desktop/ANALYSE/faudra suppress apres debug"
 
     max_target_length = args.max_target_length
