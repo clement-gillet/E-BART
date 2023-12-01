@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py", line 1491, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py", line 409, in <module>
+    main()
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py", line 102, in main
+    args, training_args = parser.parse_args_into_dataclasses()
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/transformers/hf_argparser.py", line 355, in parse_args_into_dataclasses
+    raise ValueError(f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}")
+ValueError: Some specified arguments are not used by the HfArgumentParser: ['--max_test_samples', '2']

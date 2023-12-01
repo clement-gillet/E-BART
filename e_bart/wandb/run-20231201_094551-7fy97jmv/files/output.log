@@ -1,0 +1,55 @@
+WARNING:datasets.builder:Found cached dataset json (/Users/clementgillet/.cache/huggingface/datasets/json/default-286160183dca800f/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96)
+100%|██████████| 3/3 [00:00<00:00, 113.30it/s]
+WARNING:datasets.builder:Found cached dataset json (/Users/clementgillet/.cache/huggingface/datasets/json/default-49306d765f26e9a8/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96)
+100%|██████████| 3/3 [00:00<00:00, 112.23it/s]
+INFO:model.modeling_utils:loading weights file /Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin
+INFO:model.modeling_utils:All model checkpoint weights were used when initializing BartForConditionalGeneration.
+WARNING:model.modeling_utils:Some weights of BartForConditionalGeneration were not initialized from the model checkpoint at /Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin and are newly initialized: ['model.decoder.layers.2.g_encoder_attn.v_proj.weight', 'model.decoder.layers.11.g_encoder_attn.v_proj.bias', 'model.decoder.layers.0.g_encoder_attn.out_proj.weight', 'model.decoder.layers.6.g_encoder_attn.v_proj.weight', 'model.decoder.layers.2.g_encoder_attn.k_proj.bias', 'model.decoder.layers.9.g_encoder_attn.v_proj.bias', 'model.decoder.layers.3.g_encoder_attn.q_proj.weight', 'model.decoder.layers.8.g_encoder_attn.v_proj.weight', 'model.decoder.layers.9.g_encoder_attn.out_proj.weight', 'model.decoder.layers.2.g_encoder_attn.k_proj.weight', 'model.decoder.layers.4.g_encoder_attn.q_proj.bias', 'model.decoder.layers.7.g_encoder_attn.out_proj.bias', 'model.decoder.layers.11.g_encoder_attn.out_proj.weight', 'model.decoder.layers.9.g_encoder_attn.out_proj.bias', 'model.decoder.layers.10.g_encoder_attn.k_proj.weight', 'model.decoder.layers.10.g_encoder_attn.out_proj.weight', 'model.decoder.layers.8.g_encoder_attn.out_proj.weight', 'model.decoder.layers.9.g_encoder_attn.q_proj.weight', 'model.decoder.layers.0.g_encoder_attn.out_proj.bias', 'model.decoder.layers.5.g_encoder_attn.out_proj.bias', 'model.decoder.layers.3.g_encoder_attn.out_proj.bias', 'model.decoder.layers.3.g_encoder_attn.out_proj.weight', 'model.decoder.layers.8.g_encoder_attn.q_proj.weight', 'model.decoder.layers.9.g_encoder_attn.v_proj.weight', 'model.decoder.layers.2.g_encoder_attn.q_proj.bias', 'model.decoder.layers.3.g_encoder_attn.k_proj.bias', 'model.decoder.layers.7.g_encoder_attn.v_proj.bias', 'model.decoder.layers.5.g_encoder_attn.k_proj.weight', 'model.decoder.layers.5.g_encoder_attn.v_proj.bias', 'model.decoder.layers.9.g_encoder_attn.q_proj.bias', 'model.decoder.layers.9.g_encoder_attn.k_proj.weight', 'model.decoder.layers.11.g_encoder_attn.v_proj.weight', 'model.decoder.layers.0.g_encoder_attn.k_proj.weight', 'model.decoder.layers.1.g_encoder_attn.v_proj.bias', 'model.decoder.layers.7.g_encoder_attn.v_proj.weight', 'model.decoder.layers.7.g_encoder_attn.q_proj.bias', 'model.decoder.layers.0.g_encoder_attn.v_proj.weight', 'model.decoder.layers.6.g_encoder_attn.q_proj.bias', 'model.decoder.layers.4.g_encoder_attn.v_proj.bias', 'model.decoder.layers.4.g_encoder_attn.q_proj.weight', 'model.decoder.layers.6.g_encoder_attn.k_proj.weight', 'model.decoder.layers.2.g_encoder_attn.out_proj.weight', 'model.decoder.layers.11.g_encoder_attn.k_proj.weight', 'model.decoder.layers.11.g_encoder_attn.k_proj.bias', 'model.decoder.layers.10.g_encoder_attn.q_proj.weight', 'model.decoder.layers.1.g_encoder_attn.k_proj.weight', 'model.decoder.layers.8.g_encoder_attn.k_proj.bias', 'model.decoder.layers.6.g_encoder_attn.q_proj.weight', 'model.decoder.layers.2.g_encoder_attn.out_proj.bias', 'model.decoder.layers.9.g_encoder_attn.k_proj.bias', 'model.decoder.layers.7.g_encoder_attn.q_proj.weight', 'model.decoder.layers.4.g_encoder_attn.v_proj.weight', 'model.decoder.layers.0.g_encoder_attn.v_proj.bias', 'model.decoder.layers.4.g_encoder_attn.k_proj.bias', 'model.decoder.layers.10.g_encoder_attn.out_proj.bias', 'model.decoder.layers.1.g_encoder_attn.out_proj.weight', 'model.decoder.layers.8.g_encoder_attn.out_proj.bias', 'model.decoder.layers.8.g_encoder_attn.v_proj.bias', 'model.decoder.layers.11.g_encoder_attn.q_proj.weight', 'model.decoder.layers.1.g_encoder_attn.q_proj.bias', 'model.decoder.layers.0.g_encoder_attn.q_proj.weight', 'model.decoder.layers.7.g_encoder_attn.k_proj.weight', 'model.decoder.layers.4.g_encoder_attn.out_proj.bias', 'model.decoder.layers.4.g_encoder_attn.out_proj.weight', 'model.decoder.layers.5.g_encoder_attn.v_proj.weight', 'model.decoder.layers.10.g_encoder_attn.q_proj.bias', 'model.decoder.layers.3.g_encoder_attn.v_proj.weight', 'model.decoder.layers.0.g_encoder_attn.q_proj.bias', 'model.decoder.layers.3.g_encoder_attn.v_proj.bias', 'model.decoder.layers.7.g_encoder_attn.out_proj.weight', 'model.decoder.layers.8.g_encoder_attn.q_proj.bias', 'model.decoder.layers.11.g_encoder_attn.q_proj.bias', 'model.decoder.layers.10.g_encoder_attn.v_proj.weight', 'model.decoder.layers.6.g_encoder_attn.out_proj.weight', 'model.decoder.layers.6.g_encoder_attn.out_proj.bias', 'model.decoder.layers.5.g_encoder_attn.q_proj.bias', 'model.decoder.layers.10.g_encoder_attn.k_proj.bias', 'model.decoder.layers.5.g_encoder_attn.k_proj.bias', 'model.decoder.layers.2.g_encoder_attn.q_proj.weight', 'model.decoder.layers.6.g_encoder_attn.k_proj.bias', 'model.decoder.layers.6.g_encoder_attn.v_proj.bias', 'model.decoder.layers.1.g_encoder_attn.out_proj.bias', 'model.decoder.layers.5.g_encoder_attn.q_proj.weight', 'model.decoder.layers.4.g_encoder_attn.k_proj.weight', 'model.decoder.layers.3.g_encoder_attn.k_proj.weight', 'model.decoder.layers.0.g_encoder_attn.k_proj.bias', 'model.decoder.layers.11.g_encoder_attn.out_proj.bias', 'model.decoder.layers.2.g_encoder_attn.v_proj.bias', 'model.decoder.layers.8.g_encoder_attn.k_proj.weight', 'model.decoder.layers.7.g_encoder_attn.k_proj.bias', 'model.decoder.layers.3.g_encoder_attn.q_proj.bias', 'model.decoder.layers.1.g_encoder_attn.q_proj.weight', 'model.decoder.layers.5.g_encoder_attn.out_proj.weight', 'model.decoder.layers.1.g_encoder_attn.k_proj.bias', 'model.decoder.layers.1.g_encoder_attn.v_proj.weight', 'model.decoder.layers.10.g_encoder_attn.v_proj.bias']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+INFO:model.modeling_utils:Generation config file not found, using a generation config created from the model config.
+WARNING:datasets.arrow_dataset:Loading cached processed dataset at /Users/clementgillet/.cache/huggingface/datasets/json/default-286160183dca800f/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96/cache-c76cf1b7c10768da.arrow
+WARNING:datasets.arrow_dataset:Loading cached processed dataset at /Users/clementgillet/.cache/huggingface/datasets/json/default-286160183dca800f/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96/cache-a8dcc91ca14534e4.arrow
+WARNING:datasets.arrow_dataset:Loading cached processed dataset at /Users/clementgillet/.cache/huggingface/datasets/json/default-286160183dca800f/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96/cache-44b815d84bc4517a.arrow
+/Users/clementgillet/PycharmProjects/E-BART/e_bart/optimization.py:411: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+INFO:trainer:***** Running training *****
+INFO:trainer:  Num examples = 2
+INFO:trainer:  Num Epochs = 5
+INFO:trainer:  Instantaneous batch size per device = 4
+INFO:trainer:  Total train batch size (w. parallel, distributed & accumulation) = 4
+INFO:trainer:  Gradient Accumulation steps = 1
+INFO:trainer:  Total optimization steps = 5
+INFO:trainer:  Number of trainable parameters = 608,879,616
+  0%|          | 0/5 [00:00<?, ?it/s]You're using a BartTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/contextlib.py", line 137, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/accelerate/accelerator.py", line 913, in accumulate
+    yield
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/trainer.py", line 1984, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/trainer.py", line 2807, in training_step
+    loss = self.compute_loss(model, inputs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/trainer.py", line 2842, in compute_loss
+    outputs = model(**inputs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/model/modeling_e_bart.py", line 1530, in forward
+    outputs = self.model(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/model/modeling_e_bart.py", line 1407, in forward
+    decoder_outputs = self.decoder(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/model/modeling_e_bart.py", line 1226, in forward
+    layer_outputs = decoder_layer(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/model/modeling_e_bart.py", line 465, in forward
+    hidden_states, g_cross_attn_weights, cross_attn_present_key_value = self.g_encoder_attn(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/model/modeling_e_bart.py", line 255, in forward
+    raise ValueError(
+ValueError: Attention mask should be of size (2, 1, 207, 854), but is torch.Size([2, 854])

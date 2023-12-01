@@ -1,0 +1,28 @@
+2023-11-29 15:09:42,572 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Current SDK version is 0.15.4
+2023-11-29 15:09:42,572 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Configure stats pid to 80333
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Loading settings from /Users/clementgillet/.config/wandb/settings
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Loading settings from /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/settings
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'e_bart/train.py', 'program': '/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py'}
+2023-11-29 15:09:42,573 INFO    MainThread:80333 [wandb_init.py:_log_setup():507] Logging user logs to /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231129_150942-ty8hynre/logs/debug.log
+2023-11-29 15:09:42,574 INFO    MainThread:80333 [wandb_init.py:_log_setup():508] Logging internal logs to /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231129_150942-ty8hynre/logs/debug-internal.log
+2023-11-29 15:09:42,575 INFO    MainThread:80333 [wandb_init.py:init():547] calling init triggers
+2023-11-29 15:09:42,575 INFO    MainThread:80333 [wandb_init.py:init():554] wandb.init called with sweep_config: {}
+config: {'activation_dropout': 0.1, 'activation_function': 'gelu', 'add_bias_logits': False, 'add_final_layer_norm': False, 'architectures': ['EBartModel'], 'attention_dropout': 0.1, 'bos_token_id': 0, 'classif_dropout': 0.1, 'classifier_dropout': 0.0, 'd_model': 1024, 'decoder_attention_heads': 16, 'decoder_ffn_dim': 4096, 'decoder_layerdrop': 0.0, 'decoder_layers': 12, 'decoder_start_token_id': 2, 'dropout': 0.1, 'early_stopping': True, 'encoder_attention_heads': 16, 'encoder_ffn_dim': 4096, 'encoder_layerdrop': 0.0, 'shared_encoder_layers': 11, 'encoder_heads': 1, 'eos_token_id': 2, 'forced_eos_token_id': 2, 'forced_bos_token_id': 0, 'gradient_checkpointing': False, 'id2label': {'0': 'LABEL_0', '1': 'LABEL_1', '2': 'LABEL_2'}, 'init_std': 0.02, 'is_encoder_decoder': True, 'label2id': {'LABEL_0': 0, 'LABEL_1': 1, 'LABEL_2': 2}, 'max_position_embeddings': 1024, 'model_type': 'bart', 'no_repeat_ngram_size': 3, 'normalize_before': False, 'num_beams': 4, 'num_hidden_layers': 12, 'pad_token_id': 1, 'scale_embedding': False, 'task_specific_params': {'summarization': {'length_penalty': 1.0, 'max_length': 128, 'min_length': 12, 'num_beams': 4}, 'summarization_cnn': {'length_penalty': 2.0, 'max_length': 142, 'min_length': 56, 'num_beams': 4}, 'summarization_xsum': {'length_penalty': 1.0, 'max_length': 62, 'min_length': 11, 'num_beams': 6}}, 'transformers_version': '4.7.0.dev0', 'use_cache': True, 'vocab_size': 50265}
+2023-11-29 15:09:42,576 INFO    MainThread:80333 [wandb_init.py:init():596] starting backend
+2023-11-29 15:09:42,576 INFO    MainThread:80333 [wandb_init.py:init():600] setting up manager
+2023-11-29 15:09:42,585 INFO    MainThread:80333 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2023-11-29 15:09:42,593 INFO    MainThread:80333 [wandb_init.py:init():606] backend started and connected
+2023-11-29 15:09:42,622 INFO    MainThread:80333 [wandb_init.py:init():703] updated telemetry
+2023-11-29 15:09:42,665 INFO    MainThread:80333 [wandb_init.py:init():736] communicating run to backend with 60.0 second timeout
+2023-11-29 15:09:43,727 INFO    MainThread:80333 [wandb_run.py:_on_init():2176] communicating current version
+2023-11-29 15:09:43,993 INFO    MainThread:80333 [wandb_run.py:_on_init():2185] got version response upgrade_message: "wandb version 0.16.0 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-11-29 15:09:43,993 INFO    MainThread:80333 [wandb_init.py:init():787] starting run threads in backend
+2023-11-29 15:09:44,104 INFO    MainThread:80333 [wandb_run.py:_console_start():2155] atexit reg
+2023-11-29 15:09:44,105 INFO    MainThread:80333 [wandb_run.py:_redirect():2010] redirect: SettingsConsole.WRAP_RAW
+2023-11-29 15:09:44,106 INFO    MainThread:80333 [wandb_run.py:_redirect():2075] Wrapping output streams.
+2023-11-29 15:09:44,107 INFO    MainThread:80333 [wandb_run.py:_redirect():2100] Redirects installed.
+2023-11-29 15:09:44,108 INFO    MainThread:80333 [wandb_init.py:init():828] run started, returning control to user process
+2023-11-29 15:09:53,628 WARNING MsgRouterThr:80333 [router.py:message_loop():77] message_loop has been closed

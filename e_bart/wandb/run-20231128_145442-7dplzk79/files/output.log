@@ -1,0 +1,32 @@
+
+Downloading and preparing dataset json/default to /Users/clementgillet/.cache/huggingface/datasets/json/default-1de3a421e73c035c/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96...
+Downloading data files: 100%|██████████| 3/3 [00:00<00:00, 4497.11it/s]
+Extracting data files: 100%|██████████| 3/3 [00:00<00:00, 296.09it/s]
+Generating train split: 70642 examples [00:01, 52838.00 examples/s]
+100%|██████████| 3/3 [00:00<00:00, 40.13it/s]
+WARNING:datasets.builder:Found cached dataset json (/Users/clementgillet/.cache/huggingface/datasets/json/default-f55bc7ce5c066cdf/0.0.0/8bb11242116d547c741b2e8a1f18598ffdd40a1d4f2a2872c7a28b697434bc96)
+100%|██████████| 3/3 [00:00<00:00, 43.64it/s]
+Traceback (most recent call last):
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py", line 1491, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py", line 409, in <module>
+    main()
+  File "/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py", line 147, in main
+    raw_datasets["train"] = raw_datasets["train"].add_column("guidance", raw_guidance.data["train"]["document"])
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/arrow_dataset.py", line 545, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/fingerprint.py", line 511, in wrapper
+    out = func(dataset, *args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/arrow_dataset.py", line 5533, in add_column
+    table = concat_tables([dataset._data, column_table], axis=1)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/table.py", line 1802, in concat_tables
+    return ConcatenationTable.from_tables(tables, axis=axis)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/table.py", line 1507, in from_tables
+    blocks = _extend_blocks(blocks, table_blocks, axis=axis)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/table.py", line 1499, in _extend_blocks
+    result, blocks = _split_both_like(result, blocks)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/datasets/table.py", line 1489, in _split_both_like
+    raise ValueError("Failed to concatenate on axis=1 because tables don't have the same number of rows")
+ValueError: Failed to concatenate on axis=1 because tables don't have the same number of rows

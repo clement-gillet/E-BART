@@ -409,6 +409,7 @@ class EBartDecoderLayer(nn.Module):
         encoder_hidden_states: Optional[torch.Tensor] = None,
         guidance_hidden_states: Optional[torch.Tensor] = None,
         encoder_attention_mask: Optional[torch.Tensor] = None,
+        guidance_attention_mask: Optional[torch.Tensor] = None,
         layer_head_mask: Optional[torch.Tensor] = None,
         cross_attn_layer_head_mask: Optional[torch.Tensor] = None,
         past_key_value: Optional[Tuple[torch.Tensor]] = None,
@@ -464,7 +465,7 @@ class EBartDecoderLayer(nn.Module):
             hidden_states, g_cross_attn_weights, cross_attn_present_key_value = self.g_encoder_attn(
                 hidden_states=hidden_states,
                 key_value_states=guidance_hidden_states,
-                attention_mask=encoder_attention_mask,
+                attention_mask=guidance_attention_mask,
                 layer_head_mask=cross_attn_layer_head_mask,
                 past_key_value=cross_attn_past_key_value,
                 output_attentions=output_attentions,
@@ -1042,6 +1043,7 @@ class BartDecoder(BartPretrainedModel):
         encoder_hidden_states: Optional[torch.FloatTensor] = None,
         guidance_hidden_states: Optional[torch.FloatTensor] = None,
         encoder_attention_mask: Optional[torch.LongTensor] = None,
+        guidance_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
         cross_attn_head_mask: Optional[torch.Tensor] = None,
         past_key_values: Optional[List[torch.FloatTensor]] = None,
@@ -1151,6 +1153,10 @@ class BartDecoder(BartPretrainedModel):
             # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
             encoder_attention_mask = _expand_mask(encoder_attention_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
 
+        if guidance_hidden_states is not None and guidance_attention_mask is not None:
+            # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
+            guidance_attention_mask = _expand_mask(guidance_attention_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
+
         # Should I not do the same for the guidance_hidden_states ???
 
         # embed positions
@@ -1227,6 +1233,7 @@ class BartDecoder(BartPretrainedModel):
                     encoder_hidden_states=encoder_hidden_states,
                     guidance_hidden_states = guidance_hidden_states,
                     encoder_attention_mask=encoder_attention_mask,
+                    guidance_attention_mask=guidance_attention_mask,
                     layer_head_mask=(head_mask[idx] if head_mask is not None else None),
                     cross_attn_layer_head_mask=(
                         cross_attn_head_mask[idx] if cross_attn_head_mask is not None else None
@@ -1317,6 +1324,7 @@ class EBartModel(BartPretrainedModel):
         input_ids: torch.LongTensor = None,
         g: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
+        guidance_mask: Optional[torch.Tensor] = None,
         decoder_input_ids: Optional[torch.LongTensor] = None,
         decoder_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
@@ -1376,7 +1384,7 @@ class EBartModel(BartPretrainedModel):
         if guidance is None:
             guidance = self.encoder_g(
                 input_ids=g,
-                attention_mask=attention_mask,
+                attention_mask=guidance_mask,
                 head_mask=head_mask,
                 inputs_embeds=inputs_embeds,
                 output_attentions=output_attentions,
@@ -1406,6 +1414,7 @@ class EBartModel(BartPretrainedModel):
             encoder_hidden_states=x_encoder_outputs[0],
             guidance_hidden_states=guidance[0],
             encoder_attention_mask=attention_mask,
+            guidance_attention_mask=guidance_mask,
             head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
             past_key_values=past_key_values,
@@ -1486,6 +1495,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
         input_ids: torch.LongTensor = None,
         g: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
+        guidance_mask: Optional[torch.Tensor] = None,
         decoder_input_ids: Optional[torch.LongTensor] = None,
         decoder_attention_mask: Optional[torch.LongTensor] = None,
         head_mask: Optional[torch.Tensor] = None,
@@ -1525,6 +1535,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
             input_ids,
             g=g,
             attention_mask=attention_mask,
+            guidance_mask = guidance_mask,
             decoder_input_ids=decoder_input_ids,
             x_encoder_outputs=x_encoder_outputs,
             guidance=guidance,

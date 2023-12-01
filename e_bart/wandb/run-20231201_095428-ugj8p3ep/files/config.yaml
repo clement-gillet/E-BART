@@ -1,0 +1,186 @@
+wandb_version: 1
+
+activation_dropout:
+  desc: null
+  value: 0.1
+activation_function:
+  desc: null
+  value: gelu
+add_bias_logits:
+  desc: null
+  value: false
+add_final_layer_norm:
+  desc: null
+  value: false
+architectures:
+  desc: null
+  value:
+  - EBartModel
+attention_dropout:
+  desc: null
+  value: 0.1
+bos_token_id:
+  desc: null
+  value: 0
+classif_dropout:
+  desc: null
+  value: 0.1
+classifier_dropout:
+  desc: null
+  value: 0.0
+d_model:
+  desc: null
+  value: 1024
+decoder_attention_heads:
+  desc: null
+  value: 16
+decoder_ffn_dim:
+  desc: null
+  value: 4096
+decoder_layerdrop:
+  desc: null
+  value: 0.0
+decoder_layers:
+  desc: null
+  value: 12
+decoder_start_token_id:
+  desc: null
+  value: 2
+dropout:
+  desc: null
+  value: 0.1
+early_stopping:
+  desc: null
+  value: true
+encoder_attention_heads:
+  desc: null
+  value: 16
+encoder_ffn_dim:
+  desc: null
+  value: 4096
+encoder_layerdrop:
+  desc: null
+  value: 0.0
+shared_encoder_layers:
+  desc: null
+  value: 11
+encoder_heads:
+  desc: null
+  value: 1
+eos_token_id:
+  desc: null
+  value: 2
+forced_eos_token_id:
+  desc: null
+  value: 2
+forced_bos_token_id:
+  desc: null
+  value: 0
+gradient_checkpointing:
+  desc: null
+  value: false
+id2label:
+  desc: null
+  value:
+    '0': LABEL_0
+    '1': LABEL_1
+    '2': LABEL_2
+init_std:
+  desc: null
+  value: 0.02
+is_encoder_decoder:
+  desc: null
+  value: true
+label2id:
+  desc: null
+  value:
+    LABEL_0: 0
+    LABEL_1: 1
+    LABEL_2: 2
+max_position_embeddings:
+  desc: null
+  value: 1024
+model_type:
+  desc: null
+  value: bart
+no_repeat_ngram_size:
+  desc: null
+  value: 3
+normalize_before:
+  desc: null
+  value: false
+num_beams:
+  desc: null
+  value: 4
+num_hidden_layers:
+  desc: null
+  value: 12
+pad_token_id:
+  desc: null
+  value: 1
+scale_embedding:
+  desc: null
+  value: false
+task_specific_params:
+  desc: null
+  value:
+    summarization:
+      length_penalty: 1.0
+      max_length: 128
+      min_length: 12
+      num_beams: 4
+    summarization_cnn:
+      length_penalty: 2.0
+      max_length: 142
+      min_length: 56
+      num_beams: 4
+    summarization_xsum:
+      length_penalty: 1.0
+      max_length: 62
+      min_length: 11
+      num_beams: 6
+transformers_version:
+  desc: null
+  value: 4.7.0.dev0
+use_cache:
+  desc: null
+  value: true
+vocab_size:
+  desc: null
+  value: 50265
+_wandb:
+  desc: null
+  value:
+    python_version: 3.9.11
+    cli_version: 0.15.4
+    framework: huggingface
+    huggingface_version: 4.30.2
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1701420868.135694
+    t:
+      1:
+      - 1
+      - 11
+      - 49
+      - 51
+      - 55
+      - 71
+      - 100
+      2:
+      - 1
+      - 11
+      - 49
+      - 51
+      - 55
+      - 71
+      - 100
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.9.11
+      5: 0.15.4
+      6: 4.30.2
+      8:
+      - 5

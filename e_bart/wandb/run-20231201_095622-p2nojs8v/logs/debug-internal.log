@@ -1,0 +1,130 @@
+2023-12-01 09:56:22,311 INFO    StreamThr :30805 [internal.py:wandb_internal():86] W&B internal server running at pid: 30805, started at: 2023-12-01 09:56:22.310952
+2023-12-01 09:56:22,315 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status
+2023-12-01 09:56:22,343 INFO    WriterThread:30805 [datastore.py:open_for_write():85] open: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/run-p2nojs8v.wandb
+2023-12-01 09:56:22,343 DEBUG   SenderThread:30805 [sender.py:send():369] send: header
+2023-12-01 09:56:22,379 DEBUG   SenderThread:30805 [sender.py:send():369] send: run
+2023-12-01 09:56:22,917 INFO    SenderThread:30805 [dir_watcher.py:__init__():211] watching files in: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files
+2023-12-01 09:56:22,918 INFO    SenderThread:30805 [sender.py:_start_run_threads():1100] run started: p2nojs8v with start time 1701420982.312927
+2023-12-01 09:56:22,942 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: summary_record
+2023-12-01 09:56:22,943 INFO    SenderThread:30805 [sender.py:_save_file():1354] saving file wandb-summary.json with policy end
+2023-12-01 09:56:22,951 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: check_version
+2023-12-01 09:56:22,951 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: check_version
+2023-12-01 09:56:23,076 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: run_start
+2023-12-01 09:56:23,085 DEBUG   HandlerThread:30805 [system_info.py:__init__():31] System info init
+2023-12-01 09:56:23,085 DEBUG   HandlerThread:30805 [system_info.py:__init__():46] System info init done
+2023-12-01 09:56:23,086 INFO    HandlerThread:30805 [system_monitor.py:start():181] Starting system monitor
+2023-12-01 09:56:23,086 INFO    SystemMonitor:30805 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-12-01 09:56:23,088 INFO    HandlerThread:30805 [system_monitor.py:probe():201] Collecting system info
+2023-12-01 09:56:23,088 INFO    SystemMonitor:30805 [interfaces.py:start():190] Started cpu monitoring
+2023-12-01 09:56:23,089 INFO    SystemMonitor:30805 [interfaces.py:start():190] Started disk monitoring
+2023-12-01 09:56:23,090 DEBUG   HandlerThread:30805 [system_info.py:probe():195] Probing system
+2023-12-01 09:56:23,091 INFO    SystemMonitor:30805 [interfaces.py:start():190] Started memory monitoring
+2023-12-01 09:56:23,092 INFO    SystemMonitor:30805 [interfaces.py:start():190] Started network monitoring
+2023-12-01 09:56:23,100 DEBUG   HandlerThread:30805 [system_info.py:_probe_git():180] Probing git
+2023-12-01 09:56:23,143 DEBUG   HandlerThread:30805 [system_info.py:_probe_git():188] Probing git done
+2023-12-01 09:56:23,144 DEBUG   HandlerThread:30805 [system_info.py:probe():240] Probing system done
+2023-12-01 09:56:23,144 DEBUG   HandlerThread:30805 [system_monitor.py:probe():210] {'os': 'macOS-11.6.7-x86_64-i386-64bit', 'python': '3.9.11', 'heartbeatAt': '2023-12-01T08:56:23.090897', 'startedAt': '2023-12-01T08:56:22.289552', 'docker': None, 'cuda': None, 'args': ('--train_file', '/Users/clementgillet/Desktop/Master_Hub/datasets/NarraSum/train.json', '--val_file', '/Users/clementgillet/Desktop/Master_Hub/datasets/NarraSum/validation.json', '--test_file', '/Users/clementgillet/Desktop/Master_Hub/datasets/NarraSum/test.json', '--output_dir', '/Users/clementgillet/PycharmProjects/E-BART/e_bart/output', '--train_guidance', '/Users/clementgillet/Desktop/4SUBMISSION/Guidance_Signal/GS1_guid/train.json', '--val_guidance', '/Users/clementgillet/Desktop/4SUBMISSION/Guidance_Signal/GS1_guid/validation.json', '--test_guidance', '/Users/clementgillet/Desktop/4SUBMISSION/Guidance_Signal/GS1_guid/test.json', '--per_device_train_batch_size', '4', '--per_device_eval_batch_size', '4', '--max_predict_samples', '2', '--max_train_samples', '2', '--max_eval_samples', '2', '--max_target_length', '250', '--load_best_model_at_end', 'True', '--learning_rate', '0.00003', '--evaluation_strategy', 'steps', '--predict_with_generate', '--num_train_epochs', '5'), 'state': 'running', 'program': '/Users/clementgillet/PycharmProjects/E-BART/e_bart/train.py', 'codePath': 'e_bart/train.py', 'git': {'remote': 'git@github.com:Clemthefou445/E-BART.git', 'commit': 'c9faf984b6120c003e6f61be6b12f133f3c5a594'}, 'email': 'clement.gillet@campus.tu-berlin.de', 'root': '/Users/clementgillet/PycharmProjects/E-BART', 'host': 'eduroam-141-23-191-149.wlan.tu-berlin.de', 'username': 'clementgillet', 'executable': '/Users/clementgillet/PycharmProjects/THESIS/venv/bin/python', 'cpu_count': 4, 'cpu_count_logical': 8, 'cpu_freq': {'current': 2300, 'min': 2300, 'max': 2300}, 'cpu_freq_per_core': [{'current': 2300, 'min': 2300, 'max': 2300}], 'disk': {'total': 371.5986099243164, 'used': 20.722858428955078}, 'memory': {'total': 8.0}}
+2023-12-01 09:56:23,145 INFO    HandlerThread:30805 [system_monitor.py:probe():211] Finished collecting system info
+2023-12-01 09:56:23,145 INFO    HandlerThread:30805 [system_monitor.py:probe():214] Publishing system info
+2023-12-01 09:56:23,145 DEBUG   HandlerThread:30805 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-12-01 09:56:23,146 DEBUG   HandlerThread:30805 [system_info.py:_save_pip():67] Saving pip packages done
+2023-12-01 09:56:23,148 INFO    HandlerThread:30805 [system_monitor.py:probe():216] Finished publishing system info
+2023-12-01 09:56:23,155 DEBUG   SenderThread:30805 [sender.py:send():369] send: files
+2023-12-01 09:56:23,156 INFO    SenderThread:30805 [sender.py:_save_file():1354] saving file wandb-metadata.json with policy now
+2023-12-01 09:56:23,168 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:56:23,170 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:56:23,410 DEBUG   SenderThread:30805 [sender.py:send():369] send: telemetry
+2023-12-01 09:56:23,673 INFO    wandb-upload_0:30805 [upload_job.py:push():133] Uploaded file /var/folders/k3/7lg5gqsd1_72l0df3dd6jwqw0000gn/T/tmp61thhhkbwandb/5psejpju-wandb-metadata.json
+2023-12-01 09:56:23,924 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/wandb-summary.json
+2023-12-01 09:56:23,924 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/output.log
+2023-12-01 09:56:23,925 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/wandb-metadata.json
+2023-12-01 09:56:23,925 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_created():272] file/dir created: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/requirements.txt
+2023-12-01 09:56:25,920 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/output.log
+2023-12-01 09:56:28,273 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:29,924 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/output.log
+2023-12-01 09:56:33,419 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:38,179 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:56:38,182 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:56:38,460 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:43,467 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:48,477 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:53,172 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:56:53,172 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:56:53,517 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:56:53,994 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/config.yaml
+2023-12-01 09:56:58,823 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:03,908 DEBUG   SenderThread:30805 [sender.py:send():369] send: config
+2023-12-01 09:57:03,911 DEBUG   SenderThread:30805 [sender.py:send():369] send: metric
+2023-12-01 09:57:03,911 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:03,911 DEBUG   SenderThread:30805 [sender.py:send():369] send: telemetry
+2023-12-01 09:57:03,912 DEBUG   SenderThread:30805 [sender.py:send():369] send: metric
+2023-12-01 09:57:03,912 WARNING SenderThread:30805 [sender.py:send_metric():1305] Seen metric with glob (shouldn't happen)
+2023-12-01 09:57:04,013 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/output.log
+2023-12-01 09:57:06,021 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/output.log
+2023-12-01 09:57:08,175 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:57:08,176 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:57:09,388 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:14,404 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:19,412 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:23,096 DEBUG   SystemMonitor:30805 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2023-12-01 09:57:23,098 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:57:23,175 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:57:23,176 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:57:24,432 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:25,077 INFO    Thread-16 :30805 [dir_watcher.py:_on_file_modified():289] file/dir modified: /Users/clementgillet/PycharmProjects/E-BART/e_bart/wandb/run-20231201_095622-p2nojs8v/files/config.yaml
+2023-12-01 09:57:29,770 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:34,782 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:38,187 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:57:38,193 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:57:40,440 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:45,451 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:50,462 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:57:53,144 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:57:53,182 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:57:53,185 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:57:56,374 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:01,387 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:06,397 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:08,179 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:58:08,179 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:58:11,475 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:16,482 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:21,491 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:23,153 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:58:23,186 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:58:23,187 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:58:27,364 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:32,376 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:37,387 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:38,182 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:58:38,183 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:58:42,602 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:47,616 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:52,624 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:58:53,156 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:58:53,184 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:58:53,185 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:58:58,398 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:03,423 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:08,202 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:59:08,211 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:59:08,577 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:13,590 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:18,602 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:23,161 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:59:23,196 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:59:23,197 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:59:24,449 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:29,461 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:34,475 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:38,200 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:59:38,201 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:59:39,479 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:44,492 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:49,510 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:53,164 DEBUG   SenderThread:30805 [sender.py:send():369] send: stats
+2023-12-01 09:59:53,205 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 09:59:53,207 DEBUG   SenderThread:30805 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 09:59:54,526 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 09:59:59,546 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:00:04,556 DEBUG   HandlerThread:30805 [handler.py:handle_request():144] handle_request: status_report
