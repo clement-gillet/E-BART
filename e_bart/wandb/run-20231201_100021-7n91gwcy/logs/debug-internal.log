@@ -239,3 +239,221 @@
 2023-12-01 10:09:08,912 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
 2023-12-01 10:09:13,926 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
 2023-12-01 10:09:18,932 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:22,510 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:09:22,626 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:09:22,627 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:09:24,827 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:29,837 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:34,841 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:37,626 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:09:37,628 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:09:39,853 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:44,867 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:49,886 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:52,512 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:09:52,632 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:09:52,634 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:09:54,896 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:09:59,916 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:04,930 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:07,632 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:10:07,634 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:10:10,820 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:15,844 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:20,853 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:22,519 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:10:22,637 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:10:22,639 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:10:25,933 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:30,951 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:35,973 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:37,641 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:10:37,643 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:10:41,835 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:46,846 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:51,864 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:10:52,526 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:10:52,647 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:10:52,650 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:10:56,893 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:01,911 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:06,924 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:07,648 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:11:07,650 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:11:12,665 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:11:17,502 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:22,517 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:22,533 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:11:22,651 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:11:22,652 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:11:22,653 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:11:27,861 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:32,880 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:37,651 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:11:37,652 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:11:37,930 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:42,946 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:47,958 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:52,538 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:11:52,654 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:11:52,655 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:11:52,656 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:11:53,013 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:11:58,039 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:03,064 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:07,659 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:12:07,660 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:12:07,661 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:12:08,891 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:13,909 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:18,924 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:22,543 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:12:22,663 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:12:22,664 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:12:22,665 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:12:24,892 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:29,905 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:34,916 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:37,667 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:12:37,668 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:12:37,673 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:12:40,187 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:45,207 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:50,221 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:12:52,550 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:12:52,667 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:12:52,668 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:12:52,669 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:12:55,847 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:00,863 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:05,873 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:07,673 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:13:07,673 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:07,674 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:13:11,732 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:16,746 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:21,762 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:13:22,555 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:13:22,671 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: stop_status
+2023-12-01 10:13:22,672 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:22,673 DEBUG   SenderThread:31297 [sender.py:send_request():396] send_request: stop_status
+2023-12-01 10:13:27,689 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:32,706 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:37,717 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:42,734 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:47,752 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:52,773 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:13:57,783 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:02,798 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:07,807 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:12,819 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:17,834 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:19,149 INFO    SenderThread:31297 [retry.py:__call__():172] Retry attempt failed:
+Traceback (most recent call last):
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/util/connection.py", line 95, in create_connection
+    raise err
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    sock.connect(sa)
+socket.timeout: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 714, in urlopen
+    httplib_response = self._make_request(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 403, in _make_request
+    self._validate_conn(conn)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1053, in _validate_conn
+    conn.connect()
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connection.py", line 363, in connect
+    self.sock = conn = self._new_conn()
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connection.py", line 179, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x11daf06a0>, 'Connection to api.wandb.ai timed out. (connect timeout=10)')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 798, in urlopen
+    retries = retries.increment(
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x11daf06a0>, 'Connection to api.wandb.ai timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/wandb/sdk/lib/retry.py", line 131, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py", line 320, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/wandb/vendor/gql-0.2.0/wandb_gql/client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/wandb/sdk/lib/gql_request.py", line 55, in execute
+    request = self.session.post(self.url, **post_args)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/requests/sessions.py", line 637, in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/Users/clementgillet/PycharmProjects/THESIS/venv/lib/python3.9/site-packages/requests/adapters.py", line 507, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x11daf06a0>, 'Connection to api.wandb.ai timed out. (connect timeout=10)'))
+2023-12-01 10:14:22,860 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:27,875 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:32,891 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:37,908 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:42,927 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:47,948 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:52,965 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:14:57,988 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:02,999 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:08,012 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:13,032 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:18,047 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:23,057 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:28,066 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:30,433 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:15:30,434 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:30,435 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:15:30,436 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:15:30,436 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:15:33,082 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:35,452 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:38,093 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:40,464 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:43,109 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:45,471 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:48,121 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:50,484 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:52,578 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:15:53,133 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:15:55,586 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:15:58,150 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:00,607 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:03,168 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:05,626 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:08,180 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:10,644 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:13,197 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:15,666 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:18,213 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:20,680 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:22,574 DEBUG   SenderThread:31297 [sender.py:send():369] send: stats
+2023-12-01 10:16:23,220 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:26,582 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:28,238 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:31,591 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:33,253 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:36,609 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:38,257 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:41,629 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
+2023-12-01 10:16:43,264 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: keepalive
+2023-12-01 10:16:46,645 DEBUG   HandlerThread:31297 [handler.py:handle_request():144] handle_request: status_report
