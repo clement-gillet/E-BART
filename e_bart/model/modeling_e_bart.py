@@ -1529,8 +1529,6 @@ class BartForConditionalGeneration(BartPretrainedModel):
             return_dict=return_dict,
         )
 
-        # c ici qu'il faut intervenir !!!!!
-
         lm_logits = self.lm_head(outputs[0])
         lm_logits = lm_logits + self.final_logits_bias.to(lm_logits.device)
 
