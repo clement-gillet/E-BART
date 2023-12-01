@@ -96,7 +96,7 @@ def main():
     with open('model/config.json') as config_file:
         config_wandb = json.load(config_file)
 
-    wandb.init(project="Final_Experiments", config=config_wandb, name="EBart_SanityCheck")
+    wandb.init(project="Final_Experiments", config=config_wandb, name="RUN")
 
     parser = HfArgumentParser((CustomArguments, Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
@@ -155,8 +155,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    pretrained_weights = "/netscratch/gillet/projects/model.bin"
-    #pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin"
+    #pretrained_weights = "/netscratch/gillet/projects/model.bin"
+    pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin"
     model = BartForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=pretrained_weights, config=my_config)
 
     #print(model)

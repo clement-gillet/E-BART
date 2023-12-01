@@ -1,14 +1,14 @@
 {
-  "activation_dropout": 0.1,
+  "activation_dropout": 0.0,
   "activation_function": "gelu",
   "add_bias_logits": false,
   "add_final_layer_norm": false,
   "architectures": [
     "EBartModel"
   ],
-  "attention_dropout": 0.1,
+  "attention_dropout": 0.0,
   "bos_token_id": 0,
-  "classif_dropout": 0.1,
+  "classif_dropout": 0.0,
   "classifier_dropout": 0.0,
   "d_model": 1024,
   "decoder_attention_heads": 16,
@@ -16,7 +16,7 @@
   "decoder_layerdrop": 0.0,
   "decoder_layers": 12,
   "decoder_start_token_id": 2,
-  "dropout": 0.1,
+  "dropout": 0.0,
   "early_stopping": true,
   "encoder_attention_heads": 16,
   "encoder_ffn_dim": 4096,
