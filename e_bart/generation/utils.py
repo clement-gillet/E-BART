@@ -645,7 +645,6 @@ class GenerationMixin:
             for argument, value in model_kwargs.items()
             if not any(argument.startswith(p) for p in irrelevant_prefix)
         }
-        encoder_g_kwargs["attention_mask"] = model_kwargs["guidance_mask"]
         encoder_g_signature = set(inspect.signature(encoder_g.forward).parameters)
         encoder_g_accepts_wildcard = "kwargs" in encoder_g_signature or "model_kwargs" in encoder_g_signature
         if not encoder_g_accepts_wildcard:
