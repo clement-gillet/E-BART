@@ -1,5 +1,5 @@
 {
-  "activation_dropout": 0.0,
+  "activation_dropout": 0.1,
   "activation_function": "gelu",
   "add_bias_logits": false,
   "add_final_layer_norm": false,
@@ -9,7 +9,7 @@
   "attention_dropout": 0.1,
   "bos_token_id": 0,
   "classif_dropout": 0.1,
-  "classifier_dropout": 0.1,
+  "classifier_dropout": 0.0,
   "d_model": 1024,
   "decoder_attention_heads": 16,
   "decoder_ffn_dim": 4096,
