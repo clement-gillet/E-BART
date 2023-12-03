@@ -586,6 +586,7 @@ class DataCollatorForESeq2Seq:
             features,
             padding=self.padding,
             max_length=self.max_length,
+            max_length1=self.max_length,
             pad_to_multiple_of=self.pad_to_multiple_of,
             return_tensors=return_tensors,
         )

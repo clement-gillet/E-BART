@@ -166,7 +166,7 @@ def main():
     guidance_column = "guidance"
 
     max_source_length = 1024
-    padding = False
+    padding = "max_length"
 
     # The following is a nested funcion in main() that removes blanks in the dataset and tokenizes the input and the target
     # Return :
@@ -184,6 +184,8 @@ def main():
 
         inputs = [inp for inp in inputs]
         guidance = [guid for guid in guidance]
+        print(inputs)
+        print(guidance)
 
         # In NarraSum, the authors let truncation happen too.
         model_inputs = tokenizer(inputs, max_length=max_source_length, padding=padding, truncation=True)
