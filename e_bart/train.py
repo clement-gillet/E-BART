@@ -184,7 +184,7 @@ def main():
 
         inputs = [inp for inp in inputs]
         guidance = [guid for guid in guidance]
-        print(inputs)
+        #print(inputs)
         #print(guidance)
 
         # In NarraSum, the authors let truncation happen too.
