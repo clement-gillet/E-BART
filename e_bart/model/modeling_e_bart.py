@@ -1411,7 +1411,7 @@ class EBartModel(BartPretrainedModel):
             encoder_hidden_states=x_encoder_outputs[0],
             guidance_hidden_states=guidance[0],
             encoder_attention_mask=attention_mask,
-            encoder_guidace_mask=guidance_mask,
+            encoder_guidance_mask=guidance_mask,
             head_mask=decoder_head_mask,
             cross_attn_head_mask=cross_attn_head_mask,
             past_key_values=past_key_values,
