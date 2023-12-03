@@ -185,7 +185,7 @@ def main():
         inputs = [inp for inp in inputs]
         guidance = [guid for guid in guidance]
         print(inputs)
-        print(guidance)
+        #print(guidance)
 
         # In NarraSum, the authors let truncation happen too.
         model_inputs = tokenizer(inputs, max_length=max_source_length, padding=padding, truncation=True)
