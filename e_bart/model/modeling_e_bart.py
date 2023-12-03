@@ -1118,6 +1118,9 @@ class BartDecoder(BartPretrainedModel):
             return_dict (`bool`, *optional*):
                 Whether or not to return a [`~utils.ModelOutput`] instead of a plain tuple.
         """
+        print(encoder_attention_mask)
+        print(encoder_guidance_mask)
+        print(encoder_attention_mask == encoder_guidance_mask)
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
@@ -1592,6 +1595,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
         decoder_input_ids,
         past_key_values=None,
         attention_mask=None,
+        guidance_mask=None,
         decoder_attention_mask=None,
         head_mask=None,
         decoder_head_mask=None,
@@ -1612,6 +1616,7 @@ class BartForConditionalGeneration(BartPretrainedModel):
             "past_key_values": past_key_values,
             "decoder_input_ids": decoder_input_ids,
             "attention_mask": attention_mask,
+            "guidance_mask": guidance_mask,
             "decoder_attention_mask": decoder_attention_mask,
             "head_mask": head_mask,
             "decoder_head_mask": decoder_head_mask,
