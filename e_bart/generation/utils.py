@@ -1331,6 +1331,11 @@ class GenerationMixin:
                 inputs_tensor, generation_config.pad_token_id, generation_config.eos_token_id
             )
 
+        if model_kwargs.get("guidance_mask", None) is None and requires_attention_mask and accepts_attention_mask:
+            model_kwargs["guidance_mask"] = self._prepare_attention_mask_for_generation(
+                guidance, generation_config.pad_token_id, generation_config.eos_token_id
+            )
+
         # decoder-only models should use left-padding for generation
         if not self.config.is_encoder_decoder:
             # If `input_ids` was given, check if the last id in any sequence is `pad_token_id`
