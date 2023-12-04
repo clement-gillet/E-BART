@@ -96,7 +96,7 @@ def main():
     with open('model/config.json') as config_file:
         config_wandb = json.load(config_file)
 
-    wandb.init(project="Final_Experiments", config=config_wandb, name="new_version")
+    wandb.init(project="6_base_experiments", config=config_wandb, name="run")
 
     parser = HfArgumentParser((CustomArguments, Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
