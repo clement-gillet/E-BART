@@ -7,7 +7,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 
 # Gradient-Based Optimizer for Kinematic Manipulability (ManGA)
 
-Implementation of the paper [Optimizing a Combined Hand-Arm System's Manipulability : A Gradient-Based Approach](https://drive.google.com/file/d/1LanbvcQ474-PFUdXXaoRLolytfQugVIV/view?usp=sharing), by Clément Gillet, 2023.
+Implementation of the Master Thesis [Leveraging Event Relation Extraction for Abstractive Summarization of Narratives: A Transformer-based Approach](https://drive.google.com/file/d/10BZcmVW58vcf13cZb0YOeEtXjysA3_Wk/view?usp=sharing), by Clément Gillet, 2023.
 
 ## Input 
 
