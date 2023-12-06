@@ -42,13 +42,11 @@ Extra : You can also input a specified configuration vector (as a python list) o
 - `c = 0.0001` 
 - `P = False` 
 - `k = 2000`
-## Output
+## Datasets
+[NarraSum](https://github.com/zhaochaocs/narrasum)
+[MAVEN-ERE](https://github.com/THU-KEG/MAVEN-ERE)
+[MAVEN](https://github.com/THU-KEG/MAVEN-dataset)
 
-The algorithm will **output** an **array of length 2**. 
-
-The **1st entry** is all the manipulability values (objective function) reached at each gradient step of the ManGA. 
-
-The **2nd entry** is the final optimal configuration after convergence of the ManGA.
 ## Installation
 
 1. Ubuntu Version 20.04
