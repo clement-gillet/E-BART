@@ -15,7 +15,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 
 #### Python Requirements
 
-Download [requirements.txt](https://drive.google.com/file/d/1LYowcSEg1Nsuoy7ln9x8Vz_yrIB9VRpd/view?usp=sharing) and install all dependencies with following command : 
+Download [requirements.txt](requirements) and install all dependencies with following command : 
 
     pip install -r requirements.txt
 
