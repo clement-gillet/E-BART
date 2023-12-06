@@ -12,7 +12,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 #### Main Commands to operate:
 
 - **Launch** =
-  
+
     python train.py --train_file /ds/other/NarraSum/NarraSum/train.json
 
 #### Python Requirements
