@@ -7,7 +7,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 "In the **narrative domain**, can we **improve performance of transformer-based summarizers**, i.e. quality and controllability of summaries, **by leveraging Event Relations** in the input document?"
 
 ## Architecture
-<img src="images/gsum.png" width="50%" height="50%" alt="Architecture" title="Architecture">
+<img src="images/gsum.png" width="40%" height="40%" alt="Architecture" title="Architecture">
 
 #### 1. Call `gradientAscent()` to have a plain unconstrained Optimizer on the simplest form of the Manipulability Measure (only Singularities).
 #### 2. Add arguments according to needs:
