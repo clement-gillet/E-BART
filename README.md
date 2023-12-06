@@ -15,9 +15,9 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 
     python train.py --train_file /ds/other/NarraSum/NarraSum/train.json
 
-[Hash Sign(#)][Space]Any Header/subtitle or any text you want starting with hash
-[Tab][Tab]Your text[Hash Sign(#)][Space]Any Header/subtitle or any text you want starting with hash
-[Tab][Tab]Your text
+# Any Header/subtitle or any text you want starting with hash
+          Your text[Hash Sign(#)][Space]Any Header/subtitle or any text you want starting with hash
+          Your text
 
 #### Python Requirements
 
