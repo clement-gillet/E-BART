@@ -13,6 +13,12 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 
 - **Launch** = `train.py --train_file /ds/other/NarraSum/NarraSum/train.json --val_file /ds/other/NarraSum/NarraSum/validation.json --test_file /ds/other/NarraSum/NarraSum/test.json --train_guidance /ds/other/NarraSum/NarraSum/train.json --val_guidance /ds/other/NarraSum/NarraSum/validation.json --test_guidance /ds/other/NarraSum/NarraSum/test.json --per_device_train_batch_size 4 --output_dir /netscratch/gillet/projects/E-BART/output1 --max_eval_samples 300 --learning_rate 0.000003 --per_device_eval_batch_size 4 --max_target_length 250 --load_best_model_at_end True --num_train_epochs 3 --evaluation_strategy steps --predict_with_generate --metric_for_best_model rouge1`
 
+#### Python Requirements
+
+Download [requirements.txt](https://drive.google.com/file/d/1LYowcSEg1Nsuoy7ln9x8Vz_yrIB9VRpd/view?usp=sharing) and install all dependencies with following command : 
+
+    pip install -r requirements.txt
+
 #### 2. Add arguments according to needs:
 - **initialPose** = "upwards", "downwards". If None, it starts with a totally arbitrary joint configurations (within the joint limits).
 
@@ -65,10 +71,4 @@ The **2nd entry** is the final optimal configuration after convergence of the Ma
 14. Launch all required nodes and services via `roslaunch rbohand3_kinematics start_ik_fk_services_rviz.launch load_panda_arm:=1 panda_ik_service:=1`
 15. `cd catkin_ws/src/rbohand3_kinematics/notebooks/Manipulability` and run `jupyter notebook`
 16. Open `ManGA_Notebook.ipynb` and get started (see Input/ Output section of this README)
-
-## Python Requirements
-
-Download [requirements.txt](https://drive.google.com/file/d/1LYowcSEg1Nsuoy7ln9x8Vz_yrIB9VRpd/view?usp=sharing) and install all dependencies with following command : 
-
-    pip install -r requirements.txt
 
