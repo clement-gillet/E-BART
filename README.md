@@ -42,8 +42,3 @@ Download [requirements.txt](requirements) and install all dependencies with foll
 - [NarraSum](https://github.com/zhaochaocs/narrasum)
 - [MAVEN-ERE](https://github.com/THU-KEG/MAVEN-ERE)
 - [MAVEN](https://github.com/THU-KEG/MAVEN-dataset)
-
-## Installation
-
-1.
-
