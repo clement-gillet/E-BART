@@ -12,18 +12,24 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 #### Main Commands to operate:
 
       ```bash
-    python examples/pytorch/summarization/run_summarization.py \
-        --model_name_or_path t5-small \
-        --do_train \
-        --do_eval \
-        --dataset_name cnn_dailymail \
-        --dataset_config "3.0.0" \
-        --source_prefix "summarize: " \
-        --output_dir /tmp/tst-summarization \
-        --per_device_train_batch_size=4 \
-        --per_device_eval_batch_size=4 \
-        --overwrite_output_dir \
-        --predict_with_generate
+    python train.py \
+        --train_file /ds/other/NarraSum/NarraSum/train.json 
+        --val_file /ds/other/NarraSum/NarraSum/validation.json 
+        --test_file /ds/other/NarraSum/NarraSum/test.json 
+        --train_guidance /ds/other/GS1_guid/train.json 
+        --val_guidance /ds/other/GS1_guid/validation.json 
+        --test_guidance /ds/other/GS1_guid/test.json 
+        --per_device_train_batch_size 4 
+        --output_dir /netscratch/gillet/projects/E-BART/output/GS1 
+        --max_eval_samples 300 
+        --learning_rate 0.000003 
+        --per_device_eval_batch_size 4 
+        --max_target_length 250 
+        --load_best_model_at_end True 
+        --num_train_epochs 3 
+        --evaluation_strategy steps 
+        --predict_with_generate 
+        --metric_for_best_model rouge1
     ```
 ###
           train.py --train_file /ds/other/NarraSum/NarraSum/train.json --val_file /ds/other/NarraSum/NarraSum/validation.json --test_file /ds/other/NarraSum/NarraSum/test.json --train_guidance /ds/other/GS1_guid/train.json --val_guidance                  /ds/other/GS1_guid/validation.json --test_guidance /ds/other/GS1_guid/test.json --per_device_train_batch_size 4 --output_dir /netscratch/gillet/projects/E-BART/output/GS1 --max_eval_samples 300 --learning_rate 0.000003 --                        per_device_eval_batch_size 4 --max_target_length 250 --load_best_model_at_end True --num_train_epochs 3 --evaluation_strategy steps --predict_with_generate --metric_for_best_model rouge1
