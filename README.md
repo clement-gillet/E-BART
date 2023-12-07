@@ -1,6 +1,6 @@
 # E-BART
 
-Implementation of the Master Thesis [Leveraging Event Relation Extraction for Abstractive Summarization of Narratives: A Transformer-based Approach](https://drive.google.com/file/d/10BZcmVW58vcf13cZb0YOeEtXjysA3_Wk/view?usp=sharing), by Clément Gillet, 2023.
+Implementation of the Master Thesis [Leveraging Event Relation Extraction for Abstractive Summarization of Narratives: A Transformer-based Approach](https://drive.google.com/file/d/1gHsG2oOmKIOgSRGfMzsgElB3EEp18EUX/view?usp=sharing), by Clément Gillet, 2023.
 
 This repo contains all the code related to my **Master Thesis Research**. The **research question** is the following: 
 
