@@ -11,7 +11,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
 
 #### Main Commands to operate:
 
-      ```bash
+      bash
     python train.py \
         --train_file /ds/other/NarraSum/NarraSum/train.json 
         --val_file /ds/other/NarraSum/NarraSum/validation.json 
@@ -30,7 +30,7 @@ This repo contains all the code related to my **Master Thesis Research**. The **
         --evaluation_strategy steps 
         --predict_with_generate 
         --metric_for_best_model rouge1
-    ```
+    
 
 #### Python Requirements
 
