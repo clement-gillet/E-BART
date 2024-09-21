@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 from dataclasses import dataclass, field
 
 import nltk
@@ -60,6 +61,10 @@ class CustomArguments:
         metadata={"help": "Provide a csv or json file for the guidance signal"}
     )
 
+    pretrained_weights: str = field(
+        metadata={"help": "The path to the pretrained weights file."}
+    )
+
     checkpoint_file: str = field(
         default=None, metadata={"help": "Provide a .bi file for resuming training or inference"}
     )
@@ -92,17 +97,18 @@ class CustomArguments:
 
 
 def main():
-
-    with open('model/config.json') as config_file:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_config_path = os.path.join(current_dir, "model/config.json")
+    with open(model_config_path) as config_file:
         config_wandb = json.load(config_file)
-
-    wandb.init(project="6_base_experiments", config=config_wandb, name="run")
 
     parser = HfArgumentParser((CustomArguments, Seq2SeqTrainingArguments))
     args, training_args = parser.parse_args_into_dataclasses()
+    wandb.init(project="EventSum", config=config_wandb, name=training_args.run_name)
     training_args.evaluation_strategy = "steps"
     training_args.eval_steps = 1000
-    #training_args.output_dir = "/Users/clementgillet/Desktop/ANALYSE/faudra suppress apres debug"
+    output_dir = Path(training_args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     max_target_length = args.max_target_length
 
@@ -120,14 +126,10 @@ def main():
     set_seed(10)
 
     # Get the dataset
-    data_files = {"train": args.train_file}
-    data_files["validation"] = args.val_file
-    data_files["test"] = args.test_file
+    data_files = {"train": args.train_file, "validation": args.val_file, "test": args.test_file}
 
     # Get the guidance
-    guidance_files = {"train": args.train_guidance}
-    guidance_files["validation"] = args.val_guidance
-    guidance_files["test"] = args.test_guidance
+    guidance_files = {"train": args.train_guidance, "validation": args.val_guidance, "test": args.test_guidance}
 
     extension = args.test_file.split(".")[-1]
 
@@ -149,15 +151,17 @@ def main():
     raw_datasets["test"] = raw_datasets["test"].add_column("guidance", raw_guidance.data["test"]["document"])
 
     # Load configuration (sets architecture to follow, i.e. e_bart)
-    my_config = AutoConfig.from_pretrained("model/config.json")
+    my_config = AutoConfig.from_pretrained(str(model_config_path))
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large")
 
     # Load pretrained weights
-    pretrained_weights = "/netscratch/gillet/projects/model.bin"
-    #pretrained_weights = "/Users/clementgillet/Desktop/Master_Hub/ebart.large/model.bin"
-    model = BartForConditionalGeneration.from_pretrained(pretrained_model_name_or_path=pretrained_weights, config=my_config)
+    pretrained_weights = args.pretrained_weights
+    model = BartForConditionalGeneration.from_pretrained(
+        pretrained_model_name_or_path=pretrained_weights,
+        config=my_config
+    )
 
     #print(model)
 
@@ -168,7 +172,7 @@ def main():
     max_source_length = 1024
     padding = "max_length"
 
-    # The following is a nested funcion in main() that removes blanks in the dataset and tokenizes the input and the target
+    # The following is a nested function in main() that removes blanks in the dataset and tokenizes the input and the target
     # Return :
 
     def preprocess(examples):
