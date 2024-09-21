@@ -1156,9 +1156,9 @@ class BartDecoder(BartPretrainedModel):
         if encoder_hidden_states is not None and encoder_attention_mask is not None:
             # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
             encoder_attention_mask = _expand_mask(encoder_attention_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
-            encoder_guidance_mask = _expand_mask(encoder_guidance_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
-
         # Should I not do the same for the guidance_hidden_states ???
+        if guidance_hidden_states is not None and encoder_guidance_mask is not None:
+            encoder_guidance_mask = _expand_mask(encoder_guidance_mask, inputs_embeds.dtype, tgt_len=input_shape[-1])
 
         # embed positions
         positions = self.embed_positions(input, past_key_values_length)
@@ -1651,7 +1651,7 @@ class BartForSequenceClassification(BartPretrainedModel):
 
     def __init__(self, config: BartConfig, **kwargs):
         super().__init__(config, **kwargs)
-        self.model = BartModel(config)
+        self.model = EBartModel(config)
         self.classification_head = BartClassificationHead(
             config.d_model,
             config.d_model,
@@ -1785,7 +1785,7 @@ class BartForQuestionAnswering(BartPretrainedModel):
         config.num_labels = 2
         self.num_labels = config.num_labels
 
-        self.model = BartModel(config)
+        self.model = EBartModel(config)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
