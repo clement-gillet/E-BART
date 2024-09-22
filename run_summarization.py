@@ -622,7 +622,7 @@ def main():
     )
 
     # Metric
-    metric = evaluate.load("rouge")
+    metric = evaluate.load("rouge", experiment_id=training_args.run_name)
 
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]
