@@ -97,6 +97,7 @@ class CustomArguments:
 
 
 def main():
+    nltk.download("punkt")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_config_path = os.path.join(current_dir, "model/config.json")
     with open(model_config_path) as config_file:
