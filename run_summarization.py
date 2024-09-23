@@ -17,6 +17,7 @@
 Fine-tuning the library models for sequence to sequence.
 https://github.com/huggingface/transformers/blob/v4.30.2/examples/pytorch/summarization/run_summarization.py
 """
+import json
 # You can also adapt this script on your own sequence to sequence task. Pointers for this are left as comments.
 
 import logging
@@ -726,9 +727,12 @@ def main():
                     predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
                 )
                 predictions = [pred.strip() for pred in predictions]
-                output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
+                output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.jsonl")
+                buffer = "\n".join(
+                    [json.dumps({"idx": idx, "generated_prediction": pred}) for idx, pred in enumerate(predictions)]
+                )
                 with open(output_prediction_file, "w") as writer:
-                    writer.write("\n".join(predictions))
+                    writer.write(buffer)
 
     kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "summarization"}
     if data_args.dataset_name is not None:
