@@ -603,6 +603,9 @@ def main():
         if data_args.max_predict_samples is not None:
             max_predict_samples = min(len(predict_dataset), data_args.max_predict_samples)
             predict_dataset = predict_dataset.select(range(max_predict_samples))
+        raw_predict_dataset = [
+            dict(zip(predict_dataset.column_names, row)) for row in zip(*predict_dataset.to_dict().values())
+        ]
         with training_args.main_process_first(desc="prediction dataset map pre-processing"):
             predict_dataset = predict_dataset.map(
                 preprocess_function,
@@ -728,11 +731,14 @@ def main():
                 )
                 predictions = [pred.strip() for pred in predictions]
                 output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.jsonl")
-                buffer = "\n".join(
-                    [json.dumps({"idx": idx, "generated_prediction": pred}) for idx, pred in enumerate(predictions)]
-                )
+                buffer = []
+                for idx, pred in enumerate(predictions):
+                    if "index" in raw_predict_dataset[idx]:
+                        assert idx == raw_predict_dataset[idx]["index"]
+                    raw_predict_dataset[idx]["generated_prediction"] = pred
+                    buffer.append(json.dumps(raw_predict_dataset[idx]))
                 with open(output_prediction_file, "w") as writer:
-                    writer.write(buffer)
+                    writer.write("\n".join(buffer))
 
     kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "summarization"}
     if data_args.dataset_name is not None:
