@@ -1085,7 +1085,8 @@ class Trainer:
                 pin_memory=self.args.dataloader_pin_memory,
             )
 
-        test_sampler = self._get_eval_sampler()
+        # We just want a SequentialSampler for test
+        test_sampler = SequentialSampler(test_dataset)
 
         # We use the same batch_size as for eval.
         return DataLoader(
