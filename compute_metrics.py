@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument("--predictions_file", type=str, help="Path to the predictions JSONL file")
     parser.add_argument("--output_file", type=str, help="Path to the output file")
     parser.add_argument("--postprocess", action="store_true", default=False, help="Whether to postprocess the text")
+    parser.add_argument("--inference_batch_size", type=int, default=128, help="Inference batch size for BLANC")
     return parser.parse_args()
 
 
