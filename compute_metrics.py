@@ -76,7 +76,7 @@ def main():
 
     bert_score = evaluate.load("bertscore")
     bert_scores = bert_score.compute(predictions=predictions, references=references, lang="en")
-    result_dict.update(bert_scores)
+    result_dict["bert_score"] = bert_scores
     logger.info(f"BERTScore scores:\n{bert_scores}")
 
     blanc = evaluate.load("phucdev/blanc_score")
