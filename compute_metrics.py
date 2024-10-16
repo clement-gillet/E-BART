@@ -4,6 +4,7 @@ import json
 import nltk
 import torch
 import logging
+import numpy as np
 
 from filelock import FileLock
 
@@ -19,10 +20,9 @@ def parse_args():
     parser.add_argument("--output_file", type=str, help="Path to the output file")
     parser.add_argument("--postprocess", action="store_true", default=False, help="Whether to postprocess the text")
     parser.add_argument("--inference_batch_size", type=int, default=128, help="Inference batch size for BLANC")
-    return parser.parse_args()
-
-
-def postprocess_text(preds, labels):
+    parser.add_argument("--truncation", type=bool, help="Do you want to truncate the predictions to match the length of another prediction file ? ")
+    parser.add_argument("--truncation_reference_file", type=str, help="Path to the predictions JSONL file to trim according to")
+    return parser.parse_args()def postprocess_text(preds, labels):
     preds = [pred.strip() for pred in preds]
     labels = [label.strip() for label in labels]
 
@@ -31,7 +31,6 @@ def postprocess_text(preds, labels):
     labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
 
     return preds, labels
-
 
 def main():
     args = parse_args()
@@ -50,12 +49,27 @@ def main():
     predictions = []
     references = []
     documents = []
-    with open(args.predictions_file, mode="r") as f:
-        for line in f:
-            example = json.loads(line)
-            predictions.append(example["generated_prediction"])
-            references.append(example["summary"])
-            documents.append(example["document"])
+
+    if args.truncation:
+        trim_lengths = []
+        with open(args.truncation_reference_file, mode="r") as ref_file:
+            for line in ref_file:
+                truncation_reference = json.loads(line)
+                trim_lengths.append(len(truncation_reference["generated_prediction"]))
+
+        with open(args.predictions_file, mode="r") as f:
+            for line, len in zip(f, trim_lengths):
+                example = json.loads(line)
+                predictions.append(example["generated_prediction"][:len])
+                references.append(example["summary"])
+                documents.append(example["document"])
+    else:
+        with open(args.predictions_file, mode="r") as f:
+            for line in f:
+                example = json.loads(line)
+                predictions.append(example["generated_prediction"])
+                references.append(example["summary"])
+                documents.append(example["document"])
 
     logger.info("Computing metrics...")
 
@@ -76,6 +90,9 @@ def main():
 
     bert_score = evaluate.load("bertscore")
     bert_scores = bert_score.compute(predictions=predictions, references=references, lang="en")
+    bert_scores["precision"] = np.mean(bert_scores.precision)
+    bert_scores["recall"] = np.mean(bert_scores.recall)
+    bert_scores["f1"] = np.mean(bert_scores.f1)
     result_dict["bert_score"] = bert_scores
     logger.info(f"BERTScore scores:\n{bert_scores}")
 
@@ -87,13 +104,13 @@ def main():
         device="cuda" if torch.cuda.is_available() else "cpu",
         inference_batch_size=128
     )
-    result_dict.update(blanc_scores)
-    logger.info(f"BLANC scores:\n{blanc_scores}")
+    blanc_score = np.mean(blanc_scores)
+    result_dict.update(blanc_score)
+    logger.info(f"BLANC score:\n{blanc_score}")
 
     with open(args.output_file, mode="w") as out_f:
         out_f.write(json.dumps(result_dict, indent=2))
     logger.info(f"Metrics saved to {args.output_file}")
-
 
 if __name__ == "__main__":
     main()
