@@ -16,13 +16,43 @@ logger.setLevel(logging.INFO)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Compute metrics for a predictions file")
-    parser.add_argument("--predictions_file", type=str, help="Path to the predictions JSONL file")
-    parser.add_argument("--output_file", type=str, help="Path to the output file")
-    parser.add_argument("--postprocess", action="store_true", default=False, help="Whether to postprocess the text")
-    parser.add_argument("--inference_batch_size", type=int, default=128, help="Inference batch size for BLANC")
-    parser.add_argument("--truncation", type=bool, help="Do you want to truncate the predictions to match the length of another prediction file ? ")
-    parser.add_argument("--truncation_reference_file", type=str, help="Path to the predictions JSONL file to trim according to")
-    return parser.parse_args()def postprocess_text(preds, labels):
+    parser.add_argument(
+        "--predictions_file",
+        type=str,
+        help="Path to the predictions JSONL file"
+    )
+    parser.add_argument(
+        "--output_file",
+        type=str,
+        help="Path to the output file"
+    )
+    parser.add_argument(
+        "--postprocess",
+        action="store_true",
+        default=False,
+        help="Whether to postprocess the text"
+    )
+    parser.add_argument(
+        "--inference_batch_size",
+        type=int,
+        default=128,
+        help="Inference batch size for BLANC"
+    )
+    parser.add_argument(
+        "--truncation",
+        action="store_true",
+        default=False,
+        help="Do you want to truncate the predictions to match the length of another prediction file?"
+    )
+    parser.add_argument(
+        "--truncation_reference_file",
+        type=str,
+        help="Path to the predictions JSONL file to trim according to"
+    )
+    return parser.parse_args()
+
+
+def postprocess_text(preds, labels):
     preds = [pred.strip() for pred in preds]
     labels = [label.strip() for label in labels]
 
@@ -31,6 +61,7 @@ def parse_args():
     labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
 
     return preds, labels
+
 
 def main():
     args = parse_args()
@@ -58,9 +89,9 @@ def main():
                 trim_lengths.append(len(truncation_reference["generated_prediction"]))
 
         with open(args.predictions_file, mode="r") as f:
-            for line, len in zip(f, trim_lengths):
+            for line, trim_len in zip(f, trim_lengths):
                 example = json.loads(line)
-                predictions.append(example["generated_prediction"][:len])
+                predictions.append(example["generated_prediction"][:trim_len])
                 references.append(example["summary"])
                 documents.append(example["document"])
     else:
@@ -90,9 +121,9 @@ def main():
 
     bert_score = evaluate.load("bertscore")
     bert_scores = bert_score.compute(predictions=predictions, references=references, lang="en")
-    bert_scores["precision"] = np.mean(bert_scores.precision)
-    bert_scores["recall"] = np.mean(bert_scores.recall)
-    bert_scores["f1"] = np.mean(bert_scores.f1)
+    bert_scores["precision"] = np.mean(bert_scores["precision"])
+    bert_scores["recall"] = np.mean(bert_scores["recall"])
+    bert_scores["f1"] = np.mean(bert_scores["f1"])
     result_dict["bert_score"] = bert_scores
     logger.info(f"BERTScore scores:\n{bert_scores}")
 
@@ -104,8 +135,8 @@ def main():
         device="cuda" if torch.cuda.is_available() else "cpu",
         inference_batch_size=128
     )
-    blanc_score = np.mean(blanc_scores)
-    result_dict.update(blanc_score)
+    blanc_score = np.mean(blanc_scores["blanc_help"])
+    result_dict["blanc_help"] = blanc_score
     logger.info(f"BLANC score:\n{blanc_score}")
 
     with open(args.output_file, mode="w") as out_f:
