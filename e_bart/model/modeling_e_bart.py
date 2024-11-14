@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" PyTorch BART model."""
+""" PyTorch EBART model."""
 
 # Author "Clement Gillet" brought some modification to this file and some other dependencies to transform BART into EBART,
 # a BART-model leveraging ERE-information to generate summaries (inspired by GSUM, Dou et al. 2021)

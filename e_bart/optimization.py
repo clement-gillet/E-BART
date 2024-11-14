@@ -406,6 +406,7 @@ class AdamW(Optimizer):
         weight_decay: float = 0.0,
         correct_bias: bool = True,
         no_deprecation_warning: bool = False,
+        shared_encoder_layers: int = 11
     ):
         if not no_deprecation_warning:
             warnings.warn(
@@ -423,7 +424,9 @@ class AdamW(Optimizer):
             raise ValueError(f"Invalid beta parameter: {betas[1]} - should be in [0.0, 1.0)")
         if not 0.0 <= eps:
             raise ValueError(f"Invalid epsilon value: {eps} - should be >= 0.0")
-        defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay, "correct_bias": correct_bias}
+
+        self.shared_encoder_layers = shared_encoder_layers
+        defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay, "correct_bias": correct_bias, "shared_encoder_layers": shared_encoder_layers}
         super().__init__(params, defaults)
 
     @torch.no_grad()
@@ -437,18 +440,20 @@ class AdamW(Optimizer):
         loss = None
         if closure is not None:
             loss = closure()
-        #I suspect that param_groups are first weights and then biases (verified and it is so !!)
-
         # group 1 (with weight decay) : index 1 to 68 is encoder_x weights, and index 69 to 136 is encoder_g weights
         # group 2 (without weight decay) : index 0 to 101 is encoder_x biases ( + both of self_attnn_layernorm and final_layer_norm) + one-time layernorm embedding
         # index 102 to 203 is encoder_g biases ( + both of self_attn_layernorm and final_layer_norm) + one-time layernorm embedding
+        shared_encoder_layers = self.defaults["shared_encoder_layers"]
+        end_interval1 = shared_encoder_layers * 6 + 2
+        end_interval2 = 74 + shared_encoder_layers * 6 + 1
+        end_interval3 = shared_encoder_layers * 10
+        end_interval4 = 122 + shared_encoder_layers * 10
 
         for i, group in enumerate(self.param_groups):
             if i==0 :
                 p = group["params"][0]
                 if p.grad is None:
                     continue
-                # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
                 grad = p.grad
                 if grad.is_sparse:
                     raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
@@ -501,7 +506,8 @@ class AdamW(Optimizer):
                     # add 3d term of update (alpha*weight*weight_decay) see theory
                     p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
 
-                for p1,p2 in zip(group["params"][1:68], group["params"][74:141]):
+                # Here, there's 11 x 6 param vectors + 1 (in the start)
+                for p1,p2 in zip(group["params"][1:end_interval1], group["params"][74:end_interval2]):
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)
@@ -572,7 +578,7 @@ class AdamW(Optimizer):
                         p1.add_(p1, alpha=(-group["lr"] * group["weight_decay"]))
                         p2.add_(p2, alpha=(-group["lr"] * group["weight_decay"]))
 
-                for p in group["params"][68:74] + group["params"][141:] :
+                for p in group["params"][end_interval1:74] + group["params"][end_interval2:]:
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)
@@ -634,13 +640,14 @@ class AdamW(Optimizer):
                         # add 3d term of update
                         p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
             else:
-                for p1, p2 in zip(group["params"][0:111], group["params"][122:234]):
+                # Here, there's 11 x 10 param vectors (in the start)
+                for p1, p2 in zip(group["params"][0:end_interval3], group["params"][122:end_interval4]):
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)
                     if (p1.grad is None) or (p2.grad is None):
                         continue
-                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient coomputations)
+                    # gradient of whole tensor is taken. All updates are tensor by tensor obviously (efficient computations)
                     # both gradients are added before all step computations (crucial step for shared weights approach)
                     grad = p1.grad + p2.grad
 
@@ -690,7 +697,7 @@ class AdamW(Optimizer):
                         p1.add_(p1, alpha=(-group["lr"] * group["weight_decay"]))
                         p2.add_(p2, alpha=(-group["lr"] * group["weight_decay"]))
 
-                for p in group["params"][111:122] + group["params"][234:]:
+                for p in group["params"][end_interval3:122] + group["params"][end_interval4:]:
                     # p is one tensor each time
                     # we should recover provenance of tensor in order to know which ones should be summed up to always stay the same
                     # (all params of 11 first parallel encoders)

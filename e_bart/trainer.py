@@ -1199,6 +1199,7 @@ class Trainer:
         adam_kwargs = {
             "betas": (args.adam_beta1, args.adam_beta2),
             "eps": args.adam_epsilon,
+            "shared_encoder_layers": args.shared_encoder_layers
         }
         if args.optim == OptimizerNames.ADAFACTOR:
             optimizer_cls = Adafactor
@@ -1253,7 +1254,7 @@ class Trainer:
                 if "8bit" in args.optim:
                     optim_bits = 8
                 if "adam" in args.optim:
-                    optimizer_cls = AdamW
+                    optimizer_cls = AdamW()
                 elif "lion" in args.optim:
                     optimizer_cls = Lion
                     additional_optim_kwargs = {"betas": (args.adam_beta1, args.adam_beta2)}

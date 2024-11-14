@@ -68,6 +68,14 @@ class Seq2SeqTrainingArguments(TrainingArguments):
             )
         },
     )
+    shared_encoder_layers: Optional[int] = field(
+        default=11,
+        metadata={
+            "help": (
+                "Number of encoder layers (0 to 12) shared among encoder x and encoder g. Defaults to 11."
+            )
+        },
+    )
     generation_num_beams: Optional[int] = field(
         default=None,
         metadata={
